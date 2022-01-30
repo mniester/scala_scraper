@@ -9,7 +9,13 @@ class TestSuite extends AnyFunSuite:
   test("Code Reader")
     {
     for 
-      (code, sample) <- IOSingleton.readInput("codes.txt").zip(List("aaa", "bbb", "ccc"))
+      (code, sample) <- IOSingleton.readInput("testcodes.txt").zip(List("aaa", "bbb", "ccc"))
     do
       assert(code == sample)
+    }
+  test("URLs Factory") {
+    for 
+      (code, sample) <- IOSingleton.readInput("testcodes.txt").zip(List("aaa", "bbb", "ccc"))
+    do
+      assert(s"https://www.youtube.com/watch?v=${code}" == s"https://www.youtube.com/watch?v=${sample}")
     }

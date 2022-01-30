@@ -1,0 +1,1 @@
+1. Czy istniejue możliwośc ustanowienia argumentu domyślnego dla funkcji main?
