@@ -11,6 +11,7 @@ lazy val root = project
     libraryDependencies ++= Seq(
       "org.scalactic" %% "scalactic" % "3.2.10",
       "org.scalatest" %% "scalatest" % "3.2.10" % "test",
-      "org.jsoup" % "jsoup" % "1.14.3"
+      "org.jsoup" % "jsoup" % "1.14.3",
+      "com.lihaoyi" %% "os-lib" % "0.8.0"
     )
   )

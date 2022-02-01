@@ -2,5 +2,7 @@
 .bsp
 .metals
 .vscode
+pyve
 project
 target
+work*
