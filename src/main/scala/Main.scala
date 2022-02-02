@@ -4,6 +4,7 @@ import os.proc
 import os.pwd
 import java.io.PrintWriter
 import java.io.File
+import scala.collection.mutable
 
 
 @main 
@@ -13,11 +14,27 @@ def main(fileName: String): Unit =
   do
     val rawText = scrapSubProcess(code)
     TextFormatter.forHumans(rawText)
-    //IOSingleton.writeOutput(code, scrapSubProcess(code))
+    //IOSingleton.writeOutput(code, scrapSubProcess(code)) 
 
-object TextFormatter:  
+object TextFormatter:
+  val maxLineLength = 150
+  
+  private def lineTrimmer(lines: Array[String]): String =
+    val output = StringBuilder()
+    for
+      line <- lines
+    do
+      if 
+        line.length > maxLineLength
+      then
+        output ++= inner(line)
+      else
+        output ++= line
+    return output.toString
+
   def forHumans(text: String) =
-    println(text.replace('\n', ' ' ).replaceAll(">>", "\n-").toLowerCase())
+    val lines = text.replace('\n', ' ')
+    println(lines.replaceAll(">>", "\n-").toLowerCase())
 
     
 
