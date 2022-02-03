@@ -13,13 +13,16 @@ def main(fileName: String): Unit =
     code <- IOSingleton.readInput(fileName)
   do
     val rawText = scrapSubProcess(code)
-    TextFormatter.forHumans(rawText)
+    if 
+      rawText != "TranscriptsDisabled"
+    then
+      println(TextFormatter.forHumans(rawText))
     //IOSingleton.writeOutput(code, scrapSubProcess(code)) 
 
 object TextFormatter:
-  val maxLineLength = 80
+  val maxLineLength = 150
   
-  private def forHumansFormatter(lines: Array[String]): String =
+  private def WidthFormatter(lines: Array[String]): String =
 
     val result = StringBuilder()
     val currentLine = StringBuilder()
@@ -33,21 +36,42 @@ object TextFormatter:
           then
             result ++= currentLine
             currentLine.clear
+          else if
+            word.head == '-'
+          then
+            result ++= currentLine
+            result ++= "\n"
+            currentLine.clear
           if 
             (word.length + currentLine.length) >= maxLineLength
           then
             result ++= currentLine
             result ++= "\n"
             currentLine.clear
-          currentLine ++= word.stripTrailing()
+          currentLine ++= word
           currentLine ++= " "
-    result.toString.replaceAll("  ", " ").replaceAll(">>", "\n-").toLowerCase().replaceAll(" i ", " I ")
+    result.toString
+  
+  private def BigLettersStyleFormatter(text: String): String =
+    text.toString.replaceAll("  ", " ")
+        .replaceAll(">>", "\n-")
+        .toLowerCase()
+        .replaceAll(" i ", " I ")
+  
+  private def SmallLetterStyleFormatter(text: String): String =
+    text
+  
+  private val findChevrons = ">>".r
 
   def forHumans(text: String) =
     val lines = text.split("\n")
-    val formattedText = forHumansFormatter(lines)
-    print(formattedText)
-
+    val formattedText = WidthFormatter(lines)
+    if 
+      findChevrons.findFirstIn(formattedText) != None
+    then
+      BigLettersStyleFormatter(formattedText)
+    else
+      SmallLetterStyleFormatter(formattedText)
     
 def scrapSubProcess(code: String): String =
   os.proc((pwd.toString() +  "/pyve/bin/python3"), "scraper.py").call(cwd = null, stdin = code).out.toString().drop(12).dropRight(2)
