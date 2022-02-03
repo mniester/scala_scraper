@@ -17,28 +17,38 @@ def main(fileName: String): Unit =
     //IOSingleton.writeOutput(code, scrapSubProcess(code)) 
 
 object TextFormatter:
-  val maxLineLength = 150
+  val maxLineLength = 80
   
-  private def lineTrimmer(lines: Array[String]): String =
-    val output = StringBuilder()
+  private def forHumansFormatter(lines: Array[String]): String =
+
+    val result = StringBuilder()
+    val currentLine = StringBuilder()
     for
       line <- lines
     do
-      if 
-        line.length > maxLineLength
-      then
-        output ++= inner(line)
-      else
-        output ++= line
-    return output.toString
+      for word <- line.split(" ")
+        do
+          if 
+            word == ">>"
+          then
+            result ++= currentLine
+            currentLine.clear
+          if 
+            (word.length + currentLine.length) >= maxLineLength
+          then
+            result ++= currentLine
+            result ++= "\n"
+            currentLine.clear
+          currentLine ++= word.stripTrailing()
+          currentLine ++= " "
+    result.toString.replaceAll("  ", " ").replaceAll(">>", "\n-").toLowerCase().replaceAll(" i ", " I ")
 
   def forHumans(text: String) =
-    val lines = text.replace('\n', ' ')
-    println(lines.replaceAll(">>", "\n-").toLowerCase())
+    val lines = text.split("\n")
+    val formattedText = forHumansFormatter(lines)
+    print(formattedText)
 
     
-
-
 def scrapSubProcess(code: String): String =
   os.proc((pwd.toString() +  "/pyve/bin/python3"), "scraper.py").call(cwd = null, stdin = code).out.toString().drop(12).dropRight(2)
 
