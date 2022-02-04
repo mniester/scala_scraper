@@ -5,7 +5,7 @@ import os.pwd
 import java.io.PrintWriter
 import java.io.File
 import scala.collection.mutable
-import opennlp.tools.namefind._
+import opennlp.tools.postag
 
 
 @main 
@@ -29,7 +29,6 @@ def main(fileName: String): Unit =
 
 object TextFormatter:
   val maxLineLength = 150
-  
   private def WidthFormatter(lines: Array[String]): String =
     val result = StringBuilder()
     val currentLine = StringBuilder()
@@ -79,6 +78,13 @@ object TextFormatter:
       BigLettersStyleFormatter(formattedText)
     else
       SmallLetterStyleFormatter(formattedText)
+
+
+
+object NounFinder:
+  def search(text: String) =
+    text
+
 
 def scrapSubtitles(code: String): String =
   os.proc((pwd.toString() +  "/pyve/bin/python3"), "scraper.py").call(cwd = null, stdin = code).out.toString().drop(12).dropRight(2)
