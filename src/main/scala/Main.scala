@@ -5,7 +5,10 @@ import os.pwd
 import java.io.PrintWriter
 import java.io.File
 import scala.collection.mutable
-import opennlp.tools.postag
+import opennlp.tools.postag._
+import opennlp.tools.tokenize.WhitespaceTokenizer
+import java.io.FileInputStream
+import scala.util.matching.Regex
 
 
 @main 
@@ -17,12 +20,11 @@ def main(fileName: String): Unit =
     if 
       rawText != "TranscriptsDisabled"
     then
-      val textForHumans = TextFormatter.forHumans(rawText)
-      //val textForAI = TextFormatter.forAI(rawText)
-      // for 
-      //   ne <- namedEntitiesSearch(textForAI)
-      // do
-      //   "TODO"
+      val textStyled = TextFormatter.StyleOne(rawText)
+      for 
+        noun <- PartsOfSpeechFinder.nouns(textStyled)
+      do
+        println(noun)
     else
       println("TODO - log entry")
     //IOSingleton.writeOutput(code, scrapSubtitles(code)) 
@@ -69,7 +71,7 @@ object TextFormatter:
   
   private val findChevrons = ">>".r
 
-  def forHumans(text: String): String =
+  def StyleOne(text: String): String =
     val lines = text.split("\n")
     val formattedText = WidthFormatter(lines)
     if 
@@ -81,19 +83,30 @@ object TextFormatter:
 
 
 
-object NounFinder:
-  def search(text: String) =
+object PartsOfSpeechFinder:
+  val inputStream = new FileInputStream("models/opennlp-en-ud-ewt-pos-1.0-1.9.3.bin") 
+  val modelPOS = new POSModel(inputStream)
+  val taggerPOS = new POSTaggerME(modelPOS)
+  val whitespaceTokenizer = WhitespaceTokenizer.INSTANCE
+
+  private def removePunctuation(text: String): String =
     text
+  
+  def nouns(text: String): Array[String] =
+    val tokens: Array[String] = whitespaceTokenizer.tokenize(text)
+    val tags = taggerPOS.tag(tokens)
+    val sample = new POSSample(tokens, tags)
+    val result = sample.toString.split(" ")
+    for 
+      word <- result
+      if
+        word.takeRight(4) equals "NOUN" 
+    yield 
+      word.stripSuffix("_NOUN")
 
 
 def scrapSubtitles(code: String): String =
   os.proc((pwd.toString() +  "/pyve/bin/python3"), "scraper.py").call(cwd = null, stdin = code).out.toString().drop(12).dropRight(2)
-
-// def namedEntitiesSearch(data: java.util.List[Sentence]) =
-//   for 
-//     sentence <- data.asScala.toList
-//   yield
-//     sentence.nerTags()
 
 object UrlFactory:
   def wikipedia(suffix: String) = 
