@@ -5,6 +5,7 @@ import os.pwd
 import java.io.PrintWriter
 import java.io.File
 import scala.collection.mutable
+import opennlp.tools.namefind._
 
 
 @main 
@@ -12,18 +13,24 @@ def main(fileName: String): Unit =
   for
     code <- IOSingleton.readInput(fileName)
   do
-    val rawText = scrapSubProcess(code)
+    val rawText = scrapSubtitles(code)
     if 
       rawText != "TranscriptsDisabled"
     then
-      println(TextFormatter.forHumans(rawText))
-    //IOSingleton.writeOutput(code, scrapSubProcess(code)) 
+      val textForHumans = TextFormatter.forHumans(rawText)
+      //val textForAI = TextFormatter.forAI(rawText)
+      // for 
+      //   ne <- namedEntitiesSearch(textForAI)
+      // do
+      //   "TODO"
+    else
+      println("TODO - log entry")
+    //IOSingleton.writeOutput(code, scrapSubtitles(code)) 
 
 object TextFormatter:
   val maxLineLength = 150
   
   private def WidthFormatter(lines: Array[String]): String =
-
     val result = StringBuilder()
     val currentLine = StringBuilder()
     for
@@ -63,7 +70,7 @@ object TextFormatter:
   
   private val findChevrons = ">>".r
 
-  def forHumans(text: String) =
+  def forHumans(text: String): String =
     val lines = text.split("\n")
     val formattedText = WidthFormatter(lines)
     if 
@@ -72,14 +79,19 @@ object TextFormatter:
       BigLettersStyleFormatter(formattedText)
     else
       SmallLetterStyleFormatter(formattedText)
-    
-def scrapSubProcess(code: String): String =
+
+def scrapSubtitles(code: String): String =
   os.proc((pwd.toString() +  "/pyve/bin/python3"), "scraper.py").call(cwd = null, stdin = code).out.toString().drop(12).dropRight(2)
+
+// def namedEntitiesSearch(data: java.util.List[Sentence]) =
+//   for 
+//     sentence <- data.asScala.toList
+//   yield
+//     sentence.nerTags()
 
 object UrlFactory:
   def wikipedia(suffix: String) = 
     s"https://en.wikipedia.org/wiki/${suffix}"
-
 
 trait FileReader:
   def readInput(fileName: String): Iterator[String] = 

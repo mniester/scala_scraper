@@ -12,6 +12,8 @@ lazy val root = project
       "org.scalactic" %% "scalactic" % "3.2.10",
       "org.scalatest" %% "scalatest" % "3.2.10" % "test",
       "org.jsoup" % "jsoup" % "1.14.3",
-      "com.lihaoyi" %% "os-lib" % "0.8.0"
+      "com.lihaoyi" %% "os-lib" % "0.8.0",
+      "org.apache.opennlp" % "opennlp" % "1.9.4",
+      "org.apache.opennlp" % "opennlp-tools" % "1.9.4"
     )
   )
