@@ -29,6 +29,8 @@ def main(fileName: String): Unit =
       println("TODO - log entry")
     //IOSingleton.writeOutput(code, scrapSubtitles(code)) 
 
+
+
 object TextFormatter:
   val maxLineLength = 150
   private def WidthFormatter(lines: Array[String]): String =
@@ -61,14 +63,14 @@ object TextFormatter:
     result.toString
   
   private def BigLettersStyleFormatter(text: String): String =
-    text.toString.replaceAll("  ", " ")
+    text.replaceAll("  ", " ")
         .replaceAll(">>", "\n-")
         .toLowerCase()
         .replaceAll(" i ", " I ")
   
   private def SmallLetterStyleFormatter(text: String): String =
     text
-  
+    
   private val findChevrons = ">>".r
 
   def StyleOne(text: String): String =
@@ -90,7 +92,8 @@ object PartsOfSpeechFinder:
   val whitespaceTokenizer = WhitespaceTokenizer.INSTANCE
 
   private def removePunctuation(text: String): String =
-    text
+    val punctuation = List(',', '.', '?', '!', '"', ';', ':')
+    text.takeWhile(!punctuation.contains(_))
   
   def nouns(text: String): Array[String] =
     val tokens: Array[String] = whitespaceTokenizer.tokenize(text)
@@ -101,16 +104,21 @@ object PartsOfSpeechFinder:
       word <- result
       if
         word.takeRight(4) equals "NOUN" 
-    yield 
-      word.stripSuffix("_NOUN")
+    yield
+      removePunctuation(word.stripSuffix("_NOUN"))
+
 
 
 def scrapSubtitles(code: String): String =
   os.proc((pwd.toString() +  "/pyve/bin/python3"), "scraper.py").call(cwd = null, stdin = code).out.toString().drop(12).dropRight(2)
 
+
+
 object UrlFactory:
   def wikipedia(suffix: String) = 
     s"https://en.wikipedia.org/wiki/${suffix}"
+
+
 
 trait FileReader:
   def readInput(fileName: String): Iterator[String] = 
@@ -119,10 +127,14 @@ trait FileReader:
     yield
       line
 
+
+
 trait WriterToFile:
   def writeOutput(code: String, text: String): Unit = 
     val pw = new PrintWriter(new File(code + ".txt"))
     pw.write(text)
     pw.close
+
+
 
 object IOSingleton extends FileReader, WriterToFile

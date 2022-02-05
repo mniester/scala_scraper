@@ -50,3 +50,14 @@ class TestSuite extends AnyFunSuite:
       val func = PrivateMethod[String](Symbol("SmallLetterStyleFormatter"))
       assert (formatter invokePrivate func("abc") equals "abc")
     }
+    test ("removePunctuation") {
+      val finder = PartsOfSpeechFinder
+      val func = PrivateMethod[String](Symbol("removePunctuation"))
+      assert (finder invokePrivate func("word,") equals "word")
+      assert (finder invokePrivate func("word.") equals "word")
+      assert (finder invokePrivate func("word?") equals "word")
+      assert (finder invokePrivate func("word!") equals "word")
+      assert (finder invokePrivate func("word\"") equals "word")
+      assert (finder invokePrivate func("word;") equals "word")
+      assert (finder invokePrivate func("word:") equals "word")
+    }
