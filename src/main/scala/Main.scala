@@ -9,6 +9,7 @@ import opennlp.tools.postag._
 import opennlp.tools.tokenize.WhitespaceTokenizer
 import java.io.FileInputStream
 import scala.util.matching.Regex
+import os.truncate
 
 
 @main 
@@ -20,11 +21,12 @@ def main(fileName: String): Unit =
     if 
       rawText != "TranscriptsDisabled"
     then
-      val textStyled = TextFormatter.StyleOne(rawText)
-      for 
-        noun <- PartsOfSpeechFinder.nouns(textStyled)
-      do
-        println(noun)
+      print(rawText)
+      // val textStyled = TextFormatter.StyleOne(rawText)
+      // for 
+      //   noun <- PartsOfSpeechFinder.nouns(textStyled)
+      // do
+      //   println(noun)
     else
       println("TODO - log entry")
     //IOSingleton.writeOutput(code, scrapSubtitles(code)) 
@@ -33,6 +35,7 @@ def main(fileName: String): Unit =
 
 object TextFormatter:
   val maxLineLength = 150
+  
   private def WidthFormatter(lines: Array[String]): String =
     val result = StringBuilder()
     val currentLine = StringBuilder()
@@ -62,13 +65,37 @@ object TextFormatter:
           currentLine ++= " "
     result.toString
   
-  private def BigLettersStyleFormatter(text: String): String =
-    text.replaceAll("  ", " ")
+  private def capitalizeSentences(text: String): String =
+    var x = true
+    val sentenceEnds = List('.', '?', '!')
+    val result = StringBuilder()
+    for
+      char <- text
+    do
+      if                                       
+        char.isLetter && x == true
+      then
+        result.addOne(char.toUpper)
+        x = false
+      else 
+        if
+          sentenceEnds.contains(char)
+        then 
+          x = true
+          result.addOne(char)
+        else
+          result.addOne(char)
+    result.toString
+      
+  private def bigLettersStyleFormatter(text: String): String =
+    capitalizeSentences(text
         .replaceAll(">>", "\n-")
         .toLowerCase()
         .replaceAll(" i ", " I ")
+        .replaceAll("  ", " ")
+        .stripLeading())
   
-  private def SmallLetterStyleFormatter(text: String): String =
+  private def smallLetterStyleFormatter(text: String): String =
     text
     
   private val findChevrons = ">>".r
@@ -79,17 +106,17 @@ object TextFormatter:
     if 
       findChevrons.findFirstIn(formattedText) != None
     then
-      BigLettersStyleFormatter(formattedText)
+      bigLettersStyleFormatter(formattedText)
     else
-      SmallLetterStyleFormatter(formattedText)
+      smallLetterStyleFormatter(formattedText)
 
 
 
 object PartsOfSpeechFinder:
-  val inputStream = new FileInputStream("models/opennlp-en-ud-ewt-pos-1.0-1.9.3.bin") 
-  val modelPOS = new POSModel(inputStream)
-  val taggerPOS = new POSTaggerME(modelPOS)
-  val whitespaceTokenizer = WhitespaceTokenizer.INSTANCE
+  private val inputStream = new FileInputStream("models/opennlp-en-ud-ewt-pos-1.0-1.9.3.bin") 
+  private val modelPOS = new POSModel(inputStream)
+  private val taggerPOS = new POSTaggerME(modelPOS)
+  private val whitespaceTokenizer = WhitespaceTokenizer.INSTANCE
 
   private def removePunctuation(text: String): String =
     val punctuation = List(',', '.', '?', '!', '"', ';', ':')
