@@ -29,9 +29,6 @@ def main(fileName: String): Unit =
         noun <- PartsOfSpeechFinder.nouns(textStyled)
       do
         println(noun)
-        //println(TextFormatter.removeBoth(Scraper.scrapSite(UrlFactory.wikipedia(noun))))
-        break
-        //Scraper.scrapSite(UrlFactory.wikipedia(noun))
     else
       println("TODO - log entry")
     //IOSingleton.writeOutput(code, scrapSubtitles(code)) 
@@ -90,33 +87,25 @@ object TextFormatter extends RegexRemover:
     result.toString
   
   private def capitalizeSentences(text: String): String =
-    var x = true
-    val sentenceEnds = List('.', '?', '!')
-    val result = StringBuilder()
-    for
-      char <- text
+    val result = StringBuilder(text.slice(0, 2))
+    for 
+      part <- text.sliding(3)
     do
-      if                                       
-        char.isLetter && x == true
+      if
+        "\\?!.-".contains(part.head)
       then
-        result.addOne(char.toUpper)
-        x = false
-      else 
-        if
-          sentenceEnds.contains(char)
-        then 
-          x = true
-          result.addOne(char)
-        else
-          result.addOne(char)
-    result.toString
-  
+        result.addOne(part.last.toUpper)
+      else
+        result.addOne(part.last)
+    result.toString.capitalize
+    
+
   private def smallLetterStyleFormatter(text: String): String =
     text
   
   private def bigLettersStyleFormatter(text: String): String =
     capitalizeSentences(text
-        .replaceAll(">>", "\n-")
+        .replaceAll(">>", "-")
         .toLowerCase()
         .replaceAll(" i ", " I ")
         .replaceAll("  ", " ")
@@ -160,14 +149,15 @@ object PartsOfSpeechFinder:
     val result = sample.toString.split(" ")
     result
         .filter(_.takeRight(4) equals "NOUN")
-         .mapInPlace(_.stripSuffix("_NOUN"))
-         .mapInPlace(removePunctuation(_))
+        .mapInPlace(_.stripSuffix("_NOUN"))
+        .mapInPlace(removePunctuation(_))
 
 
 object Scraper:
   
   def scrapSubtitles(code: String): String =
-    os.proc((pwd.toString() +  "/pyve/bin/python3"), "scraper.py").call(cwd = null, stdin = code).out.toString().drop(12).dropRight(2)
+    os.proc((pwd.toString() +  "/pyve/bin/python3"), "scraper.py")
+      .call(cwd = null, stdin = code).out.toString().drop(12).dropRight(2)
   
   def scrapSite(url: String): String =
     Jsoup.connect(url).get().select("p").toString

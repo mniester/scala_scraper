@@ -57,10 +57,11 @@ class TestSuite extends AnyFunSuite:
       val pattern = "Hello! Hello. Hello? Hello."
       val formatter = TextFormatter
       val func = PrivateMethod[String](Symbol("capitalizeSentences"))
-      assert (formatter invokePrivate func(sample) equals pattern)
+      val result = formatter invokePrivate func(sample)
+      assert (result equals pattern)
     }
     test("bigLettersStyleFormatter") {
-      val sample = ">> HELLO!>> HE WHISHES I  WOULD BE HERE."
+      val sample = ">> HELLO!\n>> HE WHISHES I  WOULD BE HERE."
       val pattern = "- Hello!\n- He whishes I would be here."
       val func = PrivateMethod[String](Symbol("bigLettersStyleFormatter"))
       val formatter = TextFormatter
