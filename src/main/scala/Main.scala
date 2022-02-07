@@ -1,15 +1,18 @@
 import scala.io.Source
-import org.jsoup.Jsoup
+import scala.collection.mutable
+import scala.util.control.Breaks._
+
 import os.proc
 import os.pwd
+
 import java.io.PrintWriter
 import java.io.File
-import scala.collection.mutable
+import java.io.FileInputStream
+
+import org.jsoup.Jsoup
 import opennlp.tools.postag._
 import opennlp.tools.tokenize.WhitespaceTokenizer
-import java.io.FileInputStream
 import scala.util.matching.Regex
-import os.truncate
 
 
 @main 
@@ -17,26 +20,46 @@ def main(fileName: String): Unit =
   for
     code <- IOSingleton.readInput(fileName)
   do
-    val rawText = scrapSubtitles(code)
+    val rawText = Scraper.scrapSubtitles(code)
     if 
       rawText != "TranscriptsDisabled"
     then
-      print(rawText)
-      // val textStyled = TextFormatter.StyleOne(rawText)
-      // for 
-      //   noun <- PartsOfSpeechFinder.nouns(textStyled)
-      // do
-      //   println(noun)
+      val textStyled = TextFormatter.captionFormatting(rawText)
+      for 
+        noun <- PartsOfSpeechFinder.nouns(textStyled)
+      do
+        println(TextFormatter.removeBoth(Scraper.scrapSite(UrlFactory.wikipedia(noun))))
+        break
+        //Scraper.scrapSite(UrlFactory.wikipedia(noun))
     else
       println("TODO - log entry")
     //IOSingleton.writeOutput(code, scrapSubtitles(code)) 
 
 
+trait RegexRemover:
 
-object TextFormatter:
-  val maxLineLength = 150
+  private val core = "(.+?)"
+  private val htmlTags = Seq("<", ">")
+  private val squareBrackets = Seq("\\[", "\\]")
+  private val htmlTagsRegex = (htmlTags.head ++ core ++ htmlTags.last)
+  private val squareBracketsRegex = (squareBrackets.head ++ core ++ squareBrackets.last)
   
-  private def WidthFormatter(lines: Array[String]): String =
+  def removeHTMLtags(text: String): String =
+    Regex(htmlTagsRegex).replaceAllIn(text, "")
+  
+  def removeSquareBrackets(text: String): String =
+    Regex(squareBracketsRegex).replaceAllIn(text, "")
+  
+  def removeBoth(text: String): String =
+    val tags = Regex(htmlTagsRegex + "|" + squareBracketsRegex)
+    tags.replaceAllIn(text, "")
+
+
+
+object TextFormatter extends RegexRemover:
+  val maxLineLength = 200
+  
+  private def widthFormatter(lines: Array[String]): String =
     val result = StringBuilder()
     val currentLine = StringBuilder()
     for
@@ -86,7 +109,10 @@ object TextFormatter:
         else
           result.addOne(char)
     result.toString
-      
+  
+  private def smallLetterStyleFormatter(text: String): String =
+    text
+  
   private def bigLettersStyleFormatter(text: String): String =
     capitalizeSentences(text
         .replaceAll(">>", "\n-")
@@ -94,21 +120,25 @@ object TextFormatter:
         .replaceAll(" i ", " I ")
         .replaceAll("  ", " ")
         .stripLeading())
-  
-  private def smallLetterStyleFormatter(text: String): String =
-    text
     
-  private val findChevrons = ">>".r
+  private val chevrons = Regex(">>")
 
-  def StyleOne(text: String): String =
-    val lines = text.split("\n")
-    val formattedText = WidthFormatter(lines)
+  private def splitToSentences(text: String): Array[String] = text.split("\n")
+
+  private def findPTagged(text: String): String =
+    text 
+
+  def captionFormatting(text: String): String =
+    val formattedText = widthFormatter(splitToSentences(text))
     if 
-      findChevrons.findFirstIn(formattedText) != None
+      chevrons.findFirstIn(formattedText) != None
     then
       bigLettersStyleFormatter(formattedText)
     else
       smallLetterStyleFormatter(formattedText)
+  
+  def pageFormatting(text: String): String =
+    widthFormatter(splitToSentences(text))
 
 
 
@@ -135,9 +165,14 @@ object PartsOfSpeechFinder:
       removePunctuation(word.stripSuffix("_NOUN"))
 
 
+object Scraper:
+  
+  def scrapSubtitles(code: String): String =
+    os.proc((pwd.toString() +  "/pyve/bin/python3"), "scraper.py").call(cwd = null, stdin = code).out.toString().drop(12).dropRight(2)
+  
+  def scrapSite(url: String): String =
+    Jsoup.connect(url).get().select("p").toString
 
-def scrapSubtitles(code: String): String =
-  os.proc((pwd.toString() +  "/pyve/bin/python3"), "scraper.py").call(cwd = null, stdin = code).out.toString().drop(12).dropRight(2)
 
 
 
