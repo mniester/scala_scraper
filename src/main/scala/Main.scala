@@ -25,12 +25,12 @@ def main(fileName: String): Unit =
       rawText != "TranscriptsDisabled"
     then
       val textStyled = TextFormatter.captionFormatting(rawText)
-      for 
-        noun <- PartsOfSpeechFinder.nouns(textStyled)
-      do
-        println(noun)
-    else
-      println("TODO - log entry")
+      print(textStyled)
+    //   for 
+    //     noun <- PartsOfSpeechFinder.nouns(textStyled)
+    //   do
+    //     println(noun)
+    // else
     //IOSingleton.writeOutput(code, scrapSubtitles(code)) 
 
 
@@ -55,36 +55,9 @@ trait RegexRemover:
 
 
 object TextFormatter extends RegexRemover:
-  val maxLineLength = 200
   
-  private def widthFormatter(lines: Array[String]): String =
-    val result = StringBuilder()
-    val currentLine = StringBuilder()
-    for
-      line <- lines
-    do
-      for word <- line.split(" ")
-        do
-          if 
-            word == ">>"
-          then
-            result ++= currentLine
-            currentLine.clear
-          else if
-            word.head == '-'
-          then
-            result ++= currentLine
-            result ++= "\n"
-            currentLine.clear
-          if 
-            (word.length + currentLine.length) >= maxLineLength
-          then
-            result ++= currentLine
-            result ++= "\n"
-            currentLine.clear
-          currentLine ++= word
-          currentLine ++= " "
-    result.toString
+  private def paragraphsFormatting(text: String): String =
+    text.replaceAll("\n", " ").replaceAll("-", "\n-")
   
   private def capitalizeSentences(text: String): String =
     val result = StringBuilder(text.slice(0, 2))
@@ -98,11 +71,7 @@ object TextFormatter extends RegexRemover:
       else
         result.addOne(part.last)
     result.toString.capitalize
-    
 
-  private def smallLetterStyleFormatter(text: String): String =
-    text
-  
   private def bigLettersStyleFormatter(text: String): String =
     capitalizeSentences(text
         .replaceAll(">>", "-")
@@ -113,22 +82,17 @@ object TextFormatter extends RegexRemover:
     
   private val chevrons = Regex(">>")
 
-  private def splitToSentences(text: String): Array[String] = text.split("\n")
-
-  private def findPTagged(text: String): String =
-    text 
-
   def captionFormatting(text: String): String =
-    val formattedText = widthFormatter(splitToSentences(text))
+    val formattedText = paragraphsFormatting(text)
     if 
-      chevrons.findFirstIn(formattedText) != None
+      chevrons.findFirstIn(text) != None
     then
-      bigLettersStyleFormatter(formattedText)
+       paragraphsFormatting(bigLettersStyleFormatter(text))
     else
-      smallLetterStyleFormatter(formattedText)
+      paragraphsFormatting(text)
   
   def pageFormatting(text: String): String =
-    widthFormatter(splitToSentences(text))
+    paragraphsFormatting(text)
 
 
 

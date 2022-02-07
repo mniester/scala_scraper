@@ -47,11 +47,6 @@ class TestSuite extends AnyFunSuite:
       counter += 1
     assert(counter > ((nounsInSample.length / 2) + 1))
     }
-    test("smallLetterStyleFormatter - first test of private method") {
-      val formatter = TextFormatter
-      val func = PrivateMethod[String](Symbol("smallLetterStyleFormatter"))
-      assert (formatter invokePrivate func("abc") equals "abc")
-    }
     test("capitalizeSentences"){
       val sample = "hello! hello. hello? hello."
       val pattern = "Hello! Hello. Hello? Hello."
