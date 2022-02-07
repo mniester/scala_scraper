@@ -32,20 +32,20 @@ class TestSuite extends AnyFunSuite:
       assert(s"https://en.wikipedia.org/wiki/${code}" == s"https://en.wikipedia.org/wiki/${sample}")
     }
   
-    test("Test part of speech finder") {
-      val nounsInSample = List("science", "fiction", "action", "film", "series", "future", "humanity", "reality", 
+  test("Test part of speech finder") {
+    val nounsInSample = List("science", "fiction", "action", "film", "series", "future", "humanity", "reality", 
                       "machines","humans", "bodies", "energy", "source", "computer", "programmer",
                       "hacker", "truth", "rebellion", "people")
-      val nounsFound = PartsOfSpeechFinder.nouns(matrix)
-      var counter: Int = 0
-      for 
-        s <- nounsInSample 
-        n <- nounsFound
-        if 
-          s equals n
-      do
-        counter += 1
-      assert(counter > ((nounsInSample.length / 2) + 1))
+    val nounsFound = PartsOfSpeechFinder.nouns(matrix)
+    var counter: Int = 0
+    for 
+      s <- nounsInSample 
+      n <- nounsFound
+      if 
+        s equals n
+    do
+      counter += 1
+    assert(counter > ((nounsInSample.length / 2) + 1))
     }
     test("smallLetterStyleFormatter - first test of private method") {
       val formatter = TextFormatter

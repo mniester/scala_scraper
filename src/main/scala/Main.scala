@@ -28,7 +28,8 @@ def main(fileName: String): Unit =
       for 
         noun <- PartsOfSpeechFinder.nouns(textStyled)
       do
-        println(TextFormatter.removeBoth(Scraper.scrapSite(UrlFactory.wikipedia(noun))))
+        println(noun)
+        //println(TextFormatter.removeBoth(Scraper.scrapSite(UrlFactory.wikipedia(noun))))
         break
         //Scraper.scrapSite(UrlFactory.wikipedia(noun))
     else
@@ -157,12 +158,10 @@ object PartsOfSpeechFinder:
     val tags = taggerPOS.tag(tokens)
     val sample = new POSSample(tokens, tags)
     val result = sample.toString.split(" ")
-    for 
-      word <- result
-      if
-        word.takeRight(4) equals "NOUN" 
-    yield
-      removePunctuation(word.stripSuffix("_NOUN"))
+    result
+        .filter(_.takeRight(4) equals "NOUN")
+         .mapInPlace(_.stripSuffix("_NOUN"))
+         .mapInPlace(removePunctuation(_))
 
 
 object Scraper:
