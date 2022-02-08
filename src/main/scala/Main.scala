@@ -57,27 +57,26 @@ trait RegexRemover:
 object TextFormatter extends RegexRemover:
   
   private def paragraphsFormatting(text: String): String =
-    text.replaceAll("\n", " ").replaceAll(" - ", "\n- ")
+    text.replaceAll("\n", " ").replaceAll(" - ", "\n- ").replace("  ",  " ")
   
   private def capitalizeSentences(text: String): String =
-    val result = StringBuilder(text.slice(0, 2))
+    val result = StringBuilder(text.slice(0, 2).capitalize)
     for 
       part <- text.sliding(3)
     do
       if
-        "\\?!.-".contains(part.head)
+        "\\?!.-".contains(part.head) //&& (part(1) == ' ')
       then
         result.addOne(part.last.toUpper)
       else
         result.addOne(part.last)
-    result.toString.capitalize
+    result.toString
 
   private def bigLettersStyleFormatter(text: String): String =
     capitalizeSentences(text
         .replaceAll(">>", "-")
         .toLowerCase()
         .replaceAll(" i ", " I ")
-        .replaceAll("  ", " ")
         .stripLeading())
     
   private val chevrons = Regex(">>")
