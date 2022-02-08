@@ -57,7 +57,7 @@ trait RegexRemover:
 object TextFormatter extends RegexRemover:
   
   private def paragraphsFormatting(text: String): String =
-    text.replaceAll("\n", " ").replaceAll("-", "\n-")
+    text.replaceAll("\n", " ").replaceAll(" - ", "\n- ")
   
   private def capitalizeSentences(text: String): String =
     val result = StringBuilder(text.slice(0, 2))

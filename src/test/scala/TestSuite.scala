@@ -61,6 +61,7 @@ class TestSuite extends AnyFunSuite:
       val func = PrivateMethod[String](Symbol("bigLettersStyleFormatter"))
       val formatter = TextFormatter
       val result = formatter invokePrivate func(sample)
+      println(result)
       assert {result equals pattern}
     }
     test ("removePunctuation") {
