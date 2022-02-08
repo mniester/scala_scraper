@@ -86,7 +86,7 @@ object TextFormatter extends RegexRemover:
     
   
   private def capitalizeSentences(text: String): String =
-    val result = StringBuilder(text.slice(0, 2).stripLeading.capitalize)
+    val result = StringBuilder().addOne(text.stripLeading.head.toUpper)
     for 
       part <- text.sliding(3)
     do
