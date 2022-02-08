@@ -65,7 +65,7 @@ object TextFormatter extends RegexRemover:
       part <- text.sliding(3)
     do
       if
-        "\\?!.-".contains(part.head) //&& (part(1) == ' ')
+        "\\?!.-".contains(part.head) && (part(1) == ' ')
       then
         result.addOne(part.last.toUpper)
       else
@@ -73,11 +73,11 @@ object TextFormatter extends RegexRemover:
     result.toString
 
   private def bigLettersStyleFormatter(text: String): String =
-    capitalizeSentences(text
+    capitalizeSentences(paragraphsFormatting((text
         .replaceAll(">>", "-")
         .toLowerCase()
         .replaceAll(" i ", " I ")
-        .stripLeading())
+        .stripLeading())))
     
   private val chevrons = Regex(">>")
 
@@ -86,7 +86,7 @@ object TextFormatter extends RegexRemover:
     if 
       chevrons.findFirstIn(text) != None
     then
-       paragraphsFormatting(bigLettersStyleFormatter(text))
+      bigLettersStyleFormatter(text)
     else
       paragraphsFormatting(text)
   
