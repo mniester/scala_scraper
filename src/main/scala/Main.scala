@@ -60,7 +60,7 @@ object TextFormatter extends RegexRemover:
 
   private def paragraphsFormatting(text: String): String =
 
-    def shortenLine(text: String, builder: StringBuilder = StringBuilder()): StringBuilder =
+    def narrowingText(text: String, builder: StringBuilder = StringBuilder()): StringBuilder =
       if
         text.length < maxLineLength
       then
@@ -69,24 +69,26 @@ object TextFormatter extends RegexRemover:
         val cutPoint = text.slice(0, maxLineLength).lastIndexOf(' ')
         val (alpha, beta) = text.splitAt(cutPoint)
         builder.addOne('\n').append(alpha)
-        shortenLine(beta, builder)
+        narrowingText(beta, builder)
+    
+    def lineSplitting(text: String): Array[String] = 
+      text.replaceAll("\n", " ")
+          .replaceAll(" -", "\n- ")
+          .replace("  ",  " ")
+          .split("\n")
 
     val result = StringBuilder()
-    val lines = text.replaceAll("\n", " ").replaceAll(" - ", "\n- ").replace("  ",  " ").split("\n")
+    val lines = lineSplitting(text)
     for
       line <- lines
     do
-      if
-        line.length < maxLineLength
-      then
-        result.addOne('\n').append(line)
-      else
-        result.append(shortenLine(line))
-    result.toString
+      result.append(narrowingText(line))
+    result.toString.stripLeading
     
   
   private def capitalizeSentences(text: String): String =
-    val result = StringBuilder().addOne(text.stripLeading.head.toUpper)
+    val start = text.slice(0,2)
+    val result = StringBuilder().addOne(start.head.toUpper).addOne(start.last)
     for 
       part <- text.sliding(3)
     do
