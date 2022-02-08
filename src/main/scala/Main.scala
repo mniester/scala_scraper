@@ -56,8 +56,34 @@ trait RegexRemover:
 
 object TextFormatter extends RegexRemover:
   
+  val maxLineLength = 120
+
   private def paragraphsFormatting(text: String): String =
-    text.replaceAll("\n", " ").replaceAll(" - ", "\n- ").replace("  ",  " ")
+
+    def shortenLine(text: String, builder: StringBuilder = StringBuilder()): StringBuilder =
+      if
+        text.length < maxLineLength
+      then
+        builder.append(text)
+      else
+        val (alpha, beta) = text.splitAt(maxLineLength)
+        builder.addOne('\n').append(alpha)
+        shortenLine(beta, builder)
+
+    val result = StringBuilder()
+    val lines = text.replaceAll("\n", " ").replaceAll(" - ", "\n- ").replace("  ",  " ").split("\n")
+    for
+      line <- lines
+    do
+      if
+        line.length < maxLineLength
+      then
+        result.addOne('\n').append(line)
+      else
+        result.append(shortenLine(line))  
+      result.append(shortenLine(line))
+    result.toString
+    
   
   private def capitalizeSentences(text: String): String =
     val result = StringBuilder(text.slice(0, 2).capitalize)
@@ -65,7 +91,7 @@ object TextFormatter extends RegexRemover:
       part <- text.sliding(3)
     do
       if
-        "\\?!.-".contains(part.head) && (part(1) == ' ')
+        "\\?!.-".contains(part.head) && (part(1) == ' ') || part(1) == '\"'
       then
         result.addOne(part.last.toUpper)
       else
