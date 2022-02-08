@@ -66,7 +66,8 @@ object TextFormatter extends RegexRemover:
       then
         builder.append(text)
       else
-        val (alpha, beta) = text.splitAt(maxLineLength)
+        val cutPoint = text.slice(0, maxLineLength).lastIndexOf(' ')
+        val (alpha, beta) = text.splitAt(cutPoint)
         builder.addOne('\n').append(alpha)
         shortenLine(beta, builder)
 
@@ -80,8 +81,7 @@ object TextFormatter extends RegexRemover:
       then
         result.addOne('\n').append(line)
       else
-        result.append(shortenLine(line))  
-      result.append(shortenLine(line))
+        result.append(shortenLine(line))
     result.toString
     
   
