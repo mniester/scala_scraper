@@ -68,13 +68,12 @@ object TextFormatter extends RegexRemover:
       else
         val cutPoint = text.slice(0, maxLineLength).lastIndexOf(' ')
         val (alpha, beta) = text.splitAt(cutPoint)
-        builder.addOne('\n').append(alpha)
+        builder.addOne('\n').append(alpha.stripLeading)
         narrowingText(beta, builder)
     
     def lineSplitting(text: String): Array[String] = 
       text.replaceAll("\n", " ")
           .replaceAll(" -", "\n- ")
-          .replace("  ",  " ")
           .split("\n")
 
     val result = StringBuilder()
@@ -83,7 +82,7 @@ object TextFormatter extends RegexRemover:
       line <- lines
     do
       result.append(narrowingText(line))
-    result.toString.stripLeading
+    result.toString.replace("  ", " ").stripLeading
     
   
   private def capitalizeSentences(text: String): String =
