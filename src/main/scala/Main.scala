@@ -25,7 +25,7 @@ def main(fileName: String): Unit =
       rawText != "TranscriptsDisabled"
     then
       val textStyled = TextFormatter.captionFormatting(rawText)
-      print(textStyled)
+      println(textStyled)
     //   for 
     //     noun <- PartsOfSpeechFinder.nouns(textStyled)
     //   do
@@ -64,7 +64,7 @@ object TextFormatter extends RegexRemover:
       if
         text.length < maxLineLength
       then
-        builder.append(text)
+        builder.addOne('\n').append(text)
       else
         val cutPoint = text.slice(0, maxLineLength).lastIndexOf(' ')
         val (alpha, beta) = text.splitAt(cutPoint)
@@ -86,7 +86,7 @@ object TextFormatter extends RegexRemover:
     
   
   private def capitalizeSentences(text: String): String =
-    val result = StringBuilder(text.slice(0, 2).capitalize)
+    val result = StringBuilder(text.slice(0, 2))
     for 
       part <- text.sliding(3)
     do
@@ -108,7 +108,6 @@ object TextFormatter extends RegexRemover:
   private val chevrons = Regex(">>")
 
   def captionFormatting(text: String): String =
-    val formattedText = paragraphsFormatting(text)
     if 
       chevrons.findFirstIn(text) != None
     then
