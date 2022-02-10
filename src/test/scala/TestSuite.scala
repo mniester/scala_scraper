@@ -74,3 +74,11 @@ class TestSuite extends AnyFunSuite:
       assert (finder invokePrivate func("word;") equals "word")
       assert (finder invokePrivate func("word:") equals "word")
     }
+     test("XML captions raw") {
+      val pattern = <captions>
+          <raw>{ matrix }</raw>
+          <plain>{ matrix }</plain>
+          </captions>
+      val result = TextFormatter.captionsXML(matrix)
+      assert ((pattern \\ "raw").text equals (result \\ "raw").text)
+   }

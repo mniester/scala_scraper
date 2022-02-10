@@ -1,6 +1,6 @@
 import scala.io.Source
 import scala.collection.mutable
-import scala.util.control.Breaks._
+import scala.xml._
 
 import os.proc
 import os.pwd
@@ -17,21 +17,24 @@ import scala.util.matching.Regex
 
 @main 
 def main(fileName: String): Unit =
-  for
-    code <- IOSingleton.readInput(fileName)
-  do
-    val rawText = Scraper.scrapSubtitles(code)
-    if 
-      rawText != "TranscriptsDisabled"
-    then
-      val textStyled = TextFormatter.captionFormatting(rawText)
-      println(textStyled)
-    //   for 
-    //     noun <- PartsOfSpeechFinder.nouns(textStyled)
-    //   do
-    //     println(noun)
-    // else
-    //IOSingleton.writeOutput(code, scrapSubtitles(code)) 
+  ???
+  // for
+  //   code <- IOSingleton.readInput(fileName)
+  // do
+  //   val rawText = Scraper.scrapSubtitles(code)
+  //   if 
+  //     rawText != "TranscriptsDisabled"
+  //   then
+  //     TextFormatter.captionFormatting(rawText)
+  //     for
+  //       noun <- PartsOfSpeechFinder.nouns(rawText)
+  //     do
+  //       val wikiSite = Scraper.scrapSite(UrlFactory.wikipedia(noun))
+  //       if
+  //         wikiSite != "Error 40x"
+  //       then
+  //         TextFormatter.pageFormatting(wikiSite)
+
 
 
 trait RegexRemover:
@@ -116,9 +119,21 @@ object TextFormatter extends RegexRemover:
     else
       paragraphsFormatting(text)
   
-  def pageFormatting(text: String): String =
-    paragraphsFormatting(text)
-
+  def pageFormatting(noun: String, linkToArticle: String, rawWikiArticle: String): xml.Elem =
+    <page noun = { noun }>
+      <link>{ linkToArticle }</link>
+      <raw>{ rawWikiArticle }</raw>
+      <plain>{ paragraphsFormatting(rawWikiArticle) }</plain>
+    </page>
+  
+  def captionsXML(rawCaptions: String): xml.Elem =
+    <captions>
+      <raw>{ rawCaptions }</raw>
+      <plain>{ paragraphsFormatting(rawCaptions) }</plain>
+    </captions>
+  
+  // def xmlMerging(code: String, captionsXML: xml.Elem, articlesXMLs: Array[xml.Elem]) =
+  //   <header code = { code }> ++ captionsXML
 
 
 object PartsOfSpeechFinder:
@@ -168,7 +183,6 @@ trait FileReader:
       line
 
 
-
 trait WriterToFile:
   def writeOutput(code: String, text: String): Unit = 
     val pw = new PrintWriter(new File(code + ".txt"))
@@ -176,5 +190,9 @@ trait WriterToFile:
     pw.close
 
 
+// trait articlesControl:
+//   def checkPresentFiles(title: String): Boolean =
+//     ???
+  
 
 object IOSingleton extends FileReader, WriterToFile
