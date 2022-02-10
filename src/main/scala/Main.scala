@@ -60,6 +60,7 @@ trait RegexRemover:
 object TextFormatter extends RegexRemover:
   
   val maxLineLength = 120
+  private val chevrons = Regex(">>")
 
   private def paragraphsFormatting(text: String): String =
 
@@ -80,14 +81,9 @@ object TextFormatter extends RegexRemover:
           .split("\n")
 
     val result = StringBuilder()
-    val lines = lineSplitting(text)
-    for
-      line <- lines
-    do
-      result.append(narrowingText(line))
+    lineSplitting(text).map(x => narrowingText(x)).map(y => result.append(y))
     result.toString.replace("  ", " ").stripLeading
-    
-  
+
   private def capitalizeSentences(text: String): String =
     val start = text.slice(0,2)
     val result = StringBuilder().addOne(start.head.toUpper).addOne(start.last)
@@ -108,8 +104,6 @@ object TextFormatter extends RegexRemover:
         .toLowerCase()
         .replaceAll(" i ", " I ")
         .stripLeading())))
-    
-  private val chevrons = Regex(">>")
 
   def captionFormatting(text: String): String =
     if 
