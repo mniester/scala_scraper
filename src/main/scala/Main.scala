@@ -15,13 +15,14 @@ import scala.util.matching.Regex
 
 
 @main 
-def main(fileName: String): Unit =
+def main(fileName: String, cooldown: Int): Unit =
+    val interval: Int = cooldown * 1000 
     IOSingleton.readInput(fileName)
         .map(code => Scraper.scrapSubtitles(code))
         .filter(rawText => rawText != "TranscriptsDisabled")
         .map(rawText => PartsOfSpeechFinder.nouns(rawText))
-        .map(nouns => for noun <- nouns yield noun)
-        .foreach(println(_))
+        .map(nouns => for noun <- nouns yield UrlFactory.wikipedia(noun))
+        .map(urls => for url <- urls yield Scraper.scrapSite(url, interval))
 
   // for
   //   code <- IOSingleton.readInput(fileName)
@@ -145,7 +146,7 @@ object PartsOfSpeechFinder:
     val punctuation = List(',', '.', '?', '!', '"', ';', ':')
     text.takeWhile(!punctuation.contains(_))
   
-  def nouns(text: String): List[String] =
+  def nouns(text: String): Set[String] =
 
     val tokens: Array[String] = whitespaceTokenizer.tokenize(text)
     val tags = taggerPOS.tag(tokens)
@@ -155,7 +156,7 @@ object PartsOfSpeechFinder:
         .filter(_.takeRight(4) equals "NOUN")
         .mapInPlace(_.stripSuffix("_NOUN"))
         .mapInPlace(removePunctuation(_))
-        .toList
+        .toSet
 
 
 object Scraper:
@@ -164,7 +165,8 @@ object Scraper:
     os.proc((pwd.toString() +  "/pyve/bin/python3"), "scraper.py")
       .call(cwd = null, stdin = code).out.toString().drop(12).dropRight(2)
   
-  def scrapSite(url: String): String =
+  def scrapSite(url: String, interval: Int): String =
+    Thread.sleep(interval)
     Jsoup.connect(url).get().select("p").toString
 
 
