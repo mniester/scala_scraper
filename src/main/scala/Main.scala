@@ -2,8 +2,7 @@ import scala.io.Source
 import scala.collection.mutable
 import scala.xml._
 
-import os.proc
-import os.pwd
+import os._
 
 import java.io.PrintWriter
 import java.io.File
@@ -18,6 +17,7 @@ import scala.util.matching.Regex
 @main 
 def main(fileName: String): Unit =
   ???
+
   // for
   //   code <- IOSingleton.readInput(fileName)
   // do
@@ -132,8 +132,8 @@ object TextFormatter extends RegexRemover:
       <plain>{ paragraphsFormatting(rawCaptions) }</plain>
     </captions>
   
-  // def xmlMerging(code: String, captionsXML: xml.Elem, articlesXMLs: Array[xml.Elem]) =
-  //   <header code = { code }> ++ captionsXML
+  def mergeXML(code: String, captionsXML: xml.Elem, pagesXMLs: Seq[xml.Elem]): String =
+    (<movie code = { code }> ++ captionsXML ++ pagesXMLs ++ </movie>).toString
 
 
 object PartsOfSpeechFinder:
@@ -175,6 +175,7 @@ object UrlFactory:
 
 
 
+
 trait FileReader:
   def readInput(fileName: String): Iterator[String] = 
     for 
@@ -182,17 +183,21 @@ trait FileReader:
     yield
       line
 
-
 trait WriterToFile:
   def writeOutput(code: String, text: String): Unit = 
     val pw = new PrintWriter(new File(code + ".txt"))
     pw.write(text)
     pw.close
 
+trait isDir:
+  def isDir(dirName: String): Boolean =
+    val paths = os.list(pwd).map(_.toString)
+    val lasts = paths.map(x => x.slice(x.lastIndexOf('/') + 1, x.length))
+    lasts.contains(dirName)
 
-// trait articlesControl:
-//   def checkPresentFiles(title: String): Boolean =
-//     ???
+trait makeDir:
+  def mkDir(dirName: String): Unit =
+    os.makeDir(pwd/dirName)
   
 
-object IOSingleton extends FileReader, WriterToFile
+object IOSingleton extends FileReader, WriterToFile, isDir, makeDir
