@@ -32,7 +32,7 @@ class TestSuite extends AnyFunSuite:
       assert(s"https://en.wikipedia.org/wiki/${code}" == s"https://en.wikipedia.org/wiki/${sample}")
     }
   
-  test("PartsOfSpeechFinder") {
+  test("PartsOfSpeechFinder.nouns") {
     val nounsInSample = List("science", "fiction", "action", "film", "series", "future", "humanity", "reality", 
                       "machines","humans", "bodies", "energy", "source", "computer", "programmer",
                       "hacker", "truth", "rebellion", "people")
@@ -61,7 +61,6 @@ class TestSuite extends AnyFunSuite:
       val func = PrivateMethod[String](Symbol("bigLettersStyleFormatter"))
       val formatter = TextFormatter
       val result = formatter invokePrivate func(sample)
-      println(result)
       assert {result equals pattern}
     }
     test ("TextFormatter.removePunctuation") {

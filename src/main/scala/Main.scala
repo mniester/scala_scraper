@@ -16,7 +16,12 @@ import scala.util.matching.Regex
 
 @main 
 def main(fileName: String): Unit =
-  ???
+    IOSingleton.readInput(fileName)
+        .map(code => Scraper.scrapSubtitles(code))
+        .filter(rawText => rawText != "TranscriptsDisabled")
+        .map(rawText => PartsOfSpeechFinder.nouns(rawText))
+        .map(nouns => for noun <- nouns yield noun)
+        .foreach(println(_))
 
   // for
   //   code <- IOSingleton.readInput(fileName)
@@ -25,10 +30,10 @@ def main(fileName: String): Unit =
   //   if 
   //     rawText != "TranscriptsDisabled"
   //   then
-  //     TextFormatter.captionFormatting(rawText)
   //     for
   //       noun <- PartsOfSpeechFinder.nouns(rawText)
   //     do
+  //       println(noun)
   //       val wikiSite = Scraper.scrapSite(UrlFactory.wikipedia(noun))
   //       if
   //         wikiSite != "Error 40x"
@@ -140,7 +145,8 @@ object PartsOfSpeechFinder:
     val punctuation = List(',', '.', '?', '!', '"', ';', ':')
     text.takeWhile(!punctuation.contains(_))
   
-  def nouns(text: String): Array[String] =
+  def nouns(text: String): List[String] =
+
     val tokens: Array[String] = whitespaceTokenizer.tokenize(text)
     val tags = taggerPOS.tag(tokens)
     val sample = new POSSample(tokens, tags)
@@ -149,6 +155,7 @@ object PartsOfSpeechFinder:
         .filter(_.takeRight(4) equals "NOUN")
         .mapInPlace(_.stripSuffix("_NOUN"))
         .mapInPlace(removePunctuation(_))
+        .toList
 
 
 object Scraper:
@@ -165,7 +172,7 @@ object Scraper:
 
 object UrlFactory:
   def wikipedia(suffix: String) = 
-    s"https://en.wikipedia.org/wiki/${suffix}"
+    s"https://en.wikipedia.org/wiki/${suffix.toLowerCase}"
 
 
 
