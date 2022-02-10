@@ -87,7 +87,7 @@ class TestSuite extends AnyFunSuite:
    }
    test("XML page") {
       val formatter = TextFormatter
-      val func =  PrivateMethod[xml.Elem](Symbol("paragraphsFormatting"))
+      val func =  PrivateMethod[String](Symbol("paragraphsFormatting"))
       val noun = "matrix"
       val link = "matrix.com"
       val pattern = <page noun = { noun }>
@@ -96,8 +96,8 @@ class TestSuite extends AnyFunSuite:
           <plain>{ formatter invokePrivate func(matrix) }</plain>
           </page>
       val result = TextFormatter.pageXML(noun, link, matrix)
-      assert ((pattern \ "page" \@  "noun") equals (pattern \ "page" \@ "noun"))
-      assert ((pattern \\ "link").text equals (result \\ "link").text)
-      assert ((pattern \\ "raw").text equals (result \\ "raw").text)
-      assert ((pattern \\ "plain").text equals (result \\ "plain").text)
+      assert (noun equals (result \@ "noun"))
+      assert (link equals (result \\ "link").text)
+      assert (matrix equals (result \\ "raw").text)
+      assert (formatter invokePrivate func(matrix) equals (result \\ "plain").text)
    }
