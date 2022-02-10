@@ -74,11 +74,30 @@ class TestSuite extends AnyFunSuite:
       assert (finder invokePrivate func("word;") equals "word")
       assert (finder invokePrivate func("word:") equals "word")
     }
-     test("XML captions raw") {
+   test("XML captions") {
+      val formatter = TextFormatter
+      val func =  PrivateMethod[xml.Elem](Symbol("paragraphsFormatting"))
       val pattern = <captions>
           <raw>{ matrix }</raw>
-          <plain>{ matrix }</plain>
+          <plain>{ formatter invokePrivate func(matrix) }</plain>
           </captions>
       val result = TextFormatter.captionsXML(matrix)
       assert ((pattern \\ "raw").text equals (result \\ "raw").text)
+      assert ((pattern \\ "plain").text equals (result \\ "plain").text)
+   }
+   test("XML page") {
+      val formatter = TextFormatter
+      val func =  PrivateMethod[xml.Elem](Symbol("paragraphsFormatting"))
+      val noun = "matrix"
+      val link = "matrix.com"
+      val pattern = <page noun = { noun }>
+          <link>{ link }</link>
+          <raw>{ matrix }</raw>
+          <plain>{ formatter invokePrivate func(matrix) }</plain>
+          </page>
+      val result = TextFormatter.pageXML(noun, link, matrix)
+      assert ((pattern \ "page" \@  "noun") equals (pattern \ "page" \@ "noun"))
+      assert ((pattern \\ "link").text equals (result \\ "link").text)
+      assert ((pattern \\ "raw").text equals (result \\ "raw").text)
+      assert ((pattern \\ "plain").text equals (result \\ "plain").text)
    }

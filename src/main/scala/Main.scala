@@ -119,7 +119,7 @@ object TextFormatter extends RegexRemover:
     else
       paragraphsFormatting(text)
   
-  def pageFormatting(noun: String, linkToArticle: String, rawWikiArticle: String): xml.Elem =
+  def pageXML(noun: String, linkToArticle: String, rawWikiArticle: String): xml.Elem =
     <page noun = { noun }>
       <link>{ linkToArticle }</link>
       <raw>{ rawWikiArticle }</raw>
