@@ -189,15 +189,16 @@ trait WriterToFile:
     pw.write(text)
     pw.close
 
-trait isDir:
-  def isDir(dirName: String): Boolean =
-    val paths = os.list(pwd).map(_.toString)
+trait checkPresence:
+  def checkPresence(searched: String): Boolean =
+    val (path, item) = searched.splitAt(searched.lastIndexOf('/') + 1)
+    val paths = os.list(os.Path(pwd.toString ++ path)).map(_.toString)
     val lasts = paths.map(x => x.slice(x.lastIndexOf('/') + 1, x.length))
-    lasts.contains(dirName)
+    lasts.contains(item)
 
 trait makeDir:
   def mkDir(dirName: String): Unit =
     os.makeDir(pwd/dirName)
   
 
-object IOSingleton extends FileReader, WriterToFile, isDir, makeDir
+object IOSingleton extends FileReader, WriterToFile, checkPresence, makeDir

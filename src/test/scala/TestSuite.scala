@@ -18,21 +18,21 @@ class TestSuite extends AnyFunSuite:
 
   test("test ScalaTest") {assert (true == true)}
   // test("Jsoup scrapping") {assert(Jsoup.connect("http://en.wikipedia.org/").get().title() == "Wikipedia, the free encyclopedia")}
-  test("Code Reader") {
+  test("IOSingleton.readInput") {
     for 
       (code, sample) <- IOSingleton.readInput("letters.txt").zip(List("aaa", "bbb", "ccc"))
     do
       assert(code == sample)
     }
 
-  test("Wikipedia URLs Factory") {
+  test("UrlFactory.wikipedia") {
     for 
       (code, sample) <- IOSingleton.readInput("letters.txt").zip(List("aaa", "bbb", "ccc"))
     do
       assert(s"https://en.wikipedia.org/wiki/${code}" == s"https://en.wikipedia.org/wiki/${sample}")
     }
   
-  test("Test part of speech finder") {
+  test("PartsOfSpeechFinder") {
     val nounsInSample = List("science", "fiction", "action", "film", "series", "future", "humanity", "reality", 
                       "machines","humans", "bodies", "energy", "source", "computer", "programmer",
                       "hacker", "truth", "rebellion", "people")
@@ -47,7 +47,7 @@ class TestSuite extends AnyFunSuite:
       counter += 1
     assert(counter > ((nounsInSample.length / 2) + 1))
     }
-    test("capitalizeSentences"){
+    test("TextFormatter.capitalizeSentences"){
       val sample = "hello! hello. hello? hello."
       val pattern = "Hello! Hello. Hello? Hello."
       val formatter = TextFormatter
@@ -55,7 +55,7 @@ class TestSuite extends AnyFunSuite:
       val result = formatter invokePrivate func(sample)
       assert (result equals pattern)
     }
-    test("bigLettersStyleFormatter") {
+    test("TextFormatter.bigLettersStyleFormatter") {
       val sample = ">> HELLO!\n>> HE WHISHES I  WOULD BE HERE."
       val pattern = "- Hello!\n- He whishes I would be here."
       val func = PrivateMethod[String](Symbol("bigLettersStyleFormatter"))
@@ -63,7 +63,7 @@ class TestSuite extends AnyFunSuite:
       val result = formatter invokePrivate func(sample)
       assert {result equals pattern}
     }
-    test ("removePunctuation") {
+    test ("TextFormatter.removePunctuation") {
       val finder = PartsOfSpeechFinder
       val func = PrivateMethod[String](Symbol("removePunctuation"))
       assert (finder invokePrivate func("word,") equals "word")
@@ -74,7 +74,7 @@ class TestSuite extends AnyFunSuite:
       assert (finder invokePrivate func("word;") equals "word")
       assert (finder invokePrivate func("word:") equals "word")
     }
-   test("XML captions") {
+   test("TextFormatter.captionsXML") {
       val formatter = TextFormatter
       val func =  PrivateMethod[xml.Elem](Symbol("paragraphsFormatting"))
       val pattern = <captions>
@@ -85,7 +85,7 @@ class TestSuite extends AnyFunSuite:
       assert ((pattern \\ "raw").text equals (result \\ "raw").text)
       assert ((pattern \\ "plain").text equals (result \\ "plain").text)
    }
-   test("XML page") {
+   test("TextFormatter.pageXML") {
       val formatter = TextFormatter
       val func =  PrivateMethod[String](Symbol("paragraphsFormatting"))
       val noun = "matrix"
@@ -100,4 +100,8 @@ class TestSuite extends AnyFunSuite:
       assert (link equals (result \\ "link").text)
       assert (matrix equals (result \\ "raw").text)
       assert (formatter invokePrivate func(matrix) equals (result \\ "plain").text)
+   }
+   test("IOSingleton.checkPresence"){
+     assert (IOSingleton.checkPresence("src") == true)
+     assert (IOSingleton.checkPresence("NOT_EXISTS") == false)
    }
