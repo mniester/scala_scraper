@@ -12,17 +12,28 @@ import org.jsoup.Jsoup
 import opennlp.tools.postag._
 import opennlp.tools.tokenize.WhitespaceTokenizer
 import scala.util.matching.Regex
+import scala.collection.mutable.ArrayBuilder
 
 
 @main 
 def main(fileName: String, cooldown: Int): Unit =
-    val interval: Int = cooldown * 1000 
-    IOSingleton.readInput(fileName)
-        .map(code => Scraper.scrapSubtitles(code))
-        .filter(rawText => rawText != "TranscriptsDisabled")
-        .map(rawText => PartsOfSpeechFinder.nouns(rawText))
-        .map(nouns => for noun <- nouns yield UrlFactory.wikipedia(noun))
-        .map(urls => for url <- urls yield Scraper.scrapSite(url, interval))
+    val interval: Int = cooldown * 1000
+    if
+      !IOSingleton.checkPresence("articles")
+    then
+      IOSingleton.mkDir("articles")
+    if
+      !IOSingleton.checkPresence("outputs")
+    then
+      IOSingleton.mkDir("outputs")
+    
+    // IOSingleton.readInput(fileName)
+    //     .map(code => Scraper.scrapSubtitles(code))
+    //     .filter(rawText => rawText != "TranscriptsDisabled")
+    //     .map(rawText => PartsOfSpeechFinder.nouns(rawText))
+    //     .map(nouns => for noun <- nouns yield UrlFactory.wikipedia(noun))
+    //     .foreach(v => println(v))
+        //.map(urls => for url <- urls yield Scraper.scrapSite(url, interval))
 
   // for
   //   code <- IOSingleton.readInput(fileName)
@@ -40,7 +51,6 @@ def main(fileName: String, cooldown: Int): Unit =
   //         wikiSite != "Error 40x"
   //       then
   //         TextFormatter.pageFormatting(wikiSite)
-
 
 
 trait RegexRemover:
@@ -111,7 +121,7 @@ object TextFormatter extends RegexRemover:
         .replaceAll(" i ", " I ")
         .stripLeading())))
 
-  def captionFormatting(text: String): String =
+  def run(text: String): String =
     if 
       chevrons.findFirstIn(text) != None
     then
@@ -119,14 +129,14 @@ object TextFormatter extends RegexRemover:
     else
       paragraphsFormatting(text)
   
-  def pageXML(noun: String, linkToArticle: String, rawWikiArticle: String): xml.Elem =
+  def toPageXML(noun: String, linkToArticle: String, rawWikiArticle: String): xml.Elem =
     <page noun = { noun }>
       <link>{ linkToArticle }</link>
       <raw>{ rawWikiArticle }</raw>
       <plain>{ paragraphsFormatting(rawWikiArticle) }</plain>
     </page>
   
-  def captionsXML(rawCaptions: String): xml.Elem =
+  def toCaptionsXML(rawCaptions: String): xml.Elem =
     <captions>
       <raw>{ rawCaptions }</raw>
       <plain>{ paragraphsFormatting(rawCaptions) }</plain>
@@ -134,6 +144,30 @@ object TextFormatter extends RegexRemover:
   
   def mergeXML(code: String, captionsXML: xml.Elem, pagesXMLs: Seq[xml.Elem]): String =
     (<movie code = { code }> ++ captionsXML ++ pagesXMLs ++ </movie>).toString
+  
+  def convertOutputToXML(output: Output): String =
+    ???
+
+
+
+class Output(code: String, 
+            var rawCaptions: String = null, 
+            entries: ArrayBuilder[WikiEntry] = Array.newBuilder[WikiEntry]):
+
+  def addEntry(noun: String, link: String, rawArticle: String): Unit =
+    entries.addOne(new WikiEntry(noun = noun, 
+                                link = link, 
+                                rawArticle = rawArticle))
+  
+  def addRawCaptions(text: String): Unit =
+    rawCaptions = text
+  
+  def result(): Unit = entries.result
+  
+  
+  
+class WikiEntry(noun: String, link: String, rawArticle: String)
+
 
 
 object PartsOfSpeechFinder:
@@ -157,6 +191,7 @@ object PartsOfSpeechFinder:
         .mapInPlace(_.stripSuffix("_NOUN"))
         .mapInPlace(removePunctuation(_))
         .toSet
+
 
 
 object Scraper:
@@ -186,11 +221,15 @@ trait FileReader:
     yield
       line
 
+
+
 trait WriterToFile:
   def writeOutput(code: String, text: String): Unit = 
     val pw = new PrintWriter(new File(code + ".txt"))
     pw.write(text)
     pw.close
+
+
 
 trait checkPresence:
   def checkPresence(searched: String): Boolean =
@@ -199,9 +238,12 @@ trait checkPresence:
     val lasts = paths.map(x => x.slice(x.lastIndexOf('/') + 1, x.length))
     lasts.contains(item)
 
+
+
 trait makeDir:
   def mkDir(dirName: String): Unit =
     os.makeDir(pwd/dirName)
   
+
 
 object IOSingleton extends FileReader, WriterToFile, checkPresence, makeDir
