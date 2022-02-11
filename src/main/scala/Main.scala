@@ -129,30 +129,32 @@ object TextFormatter extends RegexRemover:
     else
       paragraphsFormatting(text)
   
-  def toPageXML(noun: String, linkToArticle: String, rawWikiArticle: String): xml.Elem =
-    <page noun = { noun }>
-      <link>{ linkToArticle }</link>
-      <raw>{ rawWikiArticle }</raw>
-      <plain>{ paragraphsFormatting(rawWikiArticle) }</plain>
-    </page>
-  
   def toCaptionsXML(rawCaptions: String): xml.Elem =
     <captions>
       <raw>{ rawCaptions }</raw>
       <plain>{ paragraphsFormatting(rawCaptions) }</plain>
     </captions>
   
+  def toPageXML(wikiEntry: WikiEntry): xml.Elem =
+    <page noun = { wikiEntry.noun }>
+      <link>{ wikiEntry.noun }</link>
+      <raw>{ wikiEntry.rawArticle }</raw>
+      <plain>{ paragraphsFormatting(wikiEntry.rawArticle) }</plain>
+    </page>
+  
   def mergeXML(code: String, captionsXML: xml.Elem, pagesXMLs: Seq[xml.Elem]): String =
     (<movie code = { code }> ++ captionsXML ++ pagesXMLs ++ </movie>).toString
   
   def convertOutputToXML(output: Output): String =
-    ???
+    mergeXML(code = output.code, 
+            captionsXML = toCaptionsXML(output.rawCaptions), 
+            pagesXMLs = (for page <- output.entries.result yield toPageXML(page)))
 
 
 
-class Output(code: String, 
+class Output(val code: String, 
             var rawCaptions: String = null, 
-            entries: ArrayBuilder[WikiEntry] = Array.newBuilder[WikiEntry]):
+            val entries: ArrayBuilder[WikiEntry] = Array.newBuilder[WikiEntry]):
 
   def addEntry(noun: String, link: String, rawArticle: String): Unit =
     entries.addOne(new WikiEntry(noun = noun, 
@@ -166,7 +168,7 @@ class Output(code: String,
   
   
   
-class WikiEntry(noun: String, link: String, rawArticle: String)
+class WikiEntry(var noun: String, var link: String, var rawArticle: String)
 
 
 
