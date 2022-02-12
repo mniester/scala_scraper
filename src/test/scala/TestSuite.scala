@@ -95,7 +95,8 @@ class TestSuite extends AnyFunSuite:
           <raw>{ matrix }</raw>
           <plain>{ formatter invokePrivate func(matrix) }</plain>
           </page>
-      val result = TextFormatter.toPageXML(noun, link, matrix)
+      val entry = WikiEntry(noun = noun, link = link, rawArticle = matrix)
+      val result = TextFormatter.toPageXML(entry)
       assert (noun equals (result \@ "noun"))
       assert (link equals (result \\ "link").text)
       assert (matrix equals (result \\ "raw").text)

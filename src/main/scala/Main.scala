@@ -17,20 +17,23 @@ import scala.collection.mutable.ArrayBuilder
 
 @main 
 def main(fileName: String, cooldown: Int): Unit =
-    val interval: Int = cooldown * 1000
-    if
-      !IOSingleton.checkPresence("articles")
-    then
-      IOSingleton.mkDir("articles")
-    if
-      !IOSingleton.checkPresence("outputs")
-    then
-      IOSingleton.mkDir("outputs")
+  Config.setInterval(cooldown)
+  if
+    !IOSingleton.checkPresence("articles")
+  then
+    IOSingleton.mkDir("articles")
+  if
+    !IOSingleton.checkPresence("outputs")
+  then
+    IOSingleton.mkDir("outputs")
+  IOSingleton.readFile(fileName)
+      .map(code => Scraper.scrapSubtitles(code))
+      .filter(rawText => rawText != "TranscriptsDisabled")
+      .map(rawText => PartsOfSpeechFinder.nouns(rawText))
+      .map(nouns => for noun <- nouns yield IOSingleton.getArticle(noun))
+      .foreach(println(_))
     
-    // IOSingleton.readInput(fileName)
-    //     .map(code => Scraper.scrapSubtitles(code))
-    //     .filter(rawText => rawText != "TranscriptsDisabled")
-    //     .map(rawText => PartsOfSpeechFinder.nouns(rawText))
+
     //     .map(nouns => for noun <- nouns yield UrlFactory.wikipedia(noun))
     //     .foreach(v => println(v))
         //.map(urls => for url <- urls yield Scraper.scrapSite(url, interval))
@@ -51,6 +54,15 @@ def main(fileName: String, cooldown: Int): Unit =
   //         wikiSite != "Error 40x"
   //       then
   //         TextFormatter.pageFormatting(wikiSite)
+
+
+
+object Config:
+  var interval: Int = _
+
+  def setInterval(nr: Int): Unit =
+    var interval = nr * 1000
+
 
 
 trait RegexRemover:
@@ -131,44 +143,44 @@ object TextFormatter extends RegexRemover:
   
   def toCaptionsXML(rawCaptions: String): xml.Elem =
     <captions>
-      <raw>{ rawCaptions }</raw>
-      <plain>{ paragraphsFormatting(rawCaptions) }</plain>
+    <raw>{ rawCaptions }</raw>
+    <plain>{ paragraphsFormatting(rawCaptions) }</plain>
     </captions>
   
   def toPageXML(wikiEntry: WikiEntry): xml.Elem =
     <page noun = { wikiEntry.noun }>
-      <link>{ wikiEntry.noun }</link>
-      <raw>{ wikiEntry.rawArticle }</raw>
-      <plain>{ paragraphsFormatting(wikiEntry.rawArticle) }</plain>
+    <link>{ wikiEntry.link }</link>
+    <raw>{ wikiEntry.rawArticle }</raw>
+    <plain>{ paragraphsFormatting(wikiEntry.rawArticle) }</plain>
     </page>
   
   def mergeXML(code: String, captionsXML: xml.Elem, pagesXMLs: Seq[xml.Elem]): String =
-    (<movie code = { code }> ++ captionsXML ++ pagesXMLs ++ </movie>).toString
+    (s"<movie code = ${code}>\n${captionsXML}\n${pagesXMLs.mkString}\n</movie>").format(PrettyPrinter(maxLineLength, 2))
   
   def convertOutputToXML(output: Output): String =
     mergeXML(code = output.code, 
             captionsXML = toCaptionsXML(output.rawCaptions), 
-            pagesXMLs = (for page <- output.entries.result yield toPageXML(page)))
+            pagesXMLs = (for page <- output.wikiEntries.result yield toPageXML(page)))
 
 
 
 class Output(val code: String, 
             var rawCaptions: String = null, 
-            val entries: ArrayBuilder[WikiEntry] = Array.newBuilder[WikiEntry]):
+            val wikiEntries: ArrayBuilder[WikiEntry] = Array.newBuilder[WikiEntry]):
 
   def addEntry(noun: String, link: String, rawArticle: String): Unit =
-    entries.addOne(new WikiEntry(noun = noun, 
+    wikiEntries.addOne(new WikiEntry(noun = noun, 
                                 link = link, 
                                 rawArticle = rawArticle))
   
-  def addRawCaptions(text: String): Unit =
-    rawCaptions = text
+  def addEntry(entry: WikiEntry): Unit=
+    wikiEntries.addOne(entry)
   
-  def result(): Unit = entries.result
+  def result(): Unit = wikiEntries.result
   
   
   
-class WikiEntry(var noun: String, var link: String, var rawArticle: String)
+case class WikiEntry(val noun: String, val link: String, val rawArticle: String)
 
 
 
@@ -192,6 +204,7 @@ object PartsOfSpeechFinder:
         .filter(_.takeRight(4) equals "NOUN")
         .mapInPlace(_.stripSuffix("_NOUN"))
         .mapInPlace(removePunctuation(_))
+        .mapInPlace(_.toLowerCase)
         .toSet
 
 
@@ -202,8 +215,8 @@ object Scraper:
     os.proc((pwd.toString() +  "/pyve/bin/python3"), "scraper.py")
       .call(cwd = null, stdin = code).out.toString().drop(12).dropRight(2)
   
-  def scrapSite(url: String, interval: Int): String =
-    Thread.sleep(interval)
+  def scrapSite(url: String): String =
+    Thread.sleep(Config.interval)
     Jsoup.connect(url).get().select("p").toString
 
 
@@ -211,13 +224,13 @@ object Scraper:
 
 object UrlFactory:
   def wikipedia(suffix: String) = 
-    s"https://en.wikipedia.org/wiki/${suffix.toLowerCase}"
+    s"https://en.wikipedia.org/wiki/${suffix}"
 
 
 
 
 trait FileReader:
-  def readInput(fileName: String): Iterator[String] = 
+  def readFile(fileName: String): Iterator[String] = 
     for 
       line <- Source.fromFile(fileName).getLines()
     yield
@@ -226,8 +239,8 @@ trait FileReader:
 
 
 trait WriterToFile:
-  def writeOutput(code: String, text: String): Unit = 
-    val pw = new PrintWriter(new File(code + ".txt"))
+  def writeToFile(path: String = "", name: String, text: String): Unit = 
+    val pw = new PrintWriter(new File(path ++ name ++ ".txt"))
     pw.write(text)
     pw.close
 
@@ -242,10 +255,18 @@ trait checkPresence:
 
 
 
-trait makeDir:
+trait mkDir:
   def mkDir(dirName: String): Unit =
     os.makeDir(pwd/dirName)
+
+
+
+object IOSingleton extends FileReader, WriterToFile, checkPresence, mkDir:
   
-
-
-object IOSingleton extends FileReader, WriterToFile, checkPresence, makeDir
+  def getArticle(noun: String): String =
+    if
+      !checkPresence("/articles" ++ "/" ++ noun)
+    then
+      writeToFile(path = "articles/", name = noun, text = Scraper.scrapSite(noun))
+    readFile("articles" ++ "/" ++ noun ++ "txt").mkString
+      
