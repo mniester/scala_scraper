@@ -28,9 +28,9 @@ def main(fileName: String, cooldown: Int): Unit =
     IOSingleton.mkDir("outputs")
   IOSingleton.readFile(fileName)
       .map(code => Scraper.scrapSubtitles(code))
-      .filter(rawText => rawText != "TranscriptsDisabled")
-      .map(rawText => PartsOfSpeechFinder.nouns(rawText))
-      .map(nouns => for noun <- nouns yield IOSingleton.getArticle(noun))
+      .filter(rawText => rawText != None)
+      .map(rawText => PartsOfSpeechFinder.nouns(rawText.get))
+      //.map(nouns => for noun <- nouns yield IOSingleton.getArticle(noun))
       .foreach(println(_))
 
 
@@ -189,14 +189,14 @@ object PartsOfSpeechFinder:
 
 object Scraper:
   
-  def scrapSubtitles(code: String): String =
+  def scrapSubtitles(code: String): Option[String] =
     val result = os.proc((pwd.toString() +  "/pyve/bin/python3"), "scraper.py").call(cwd = null, stdin = code).out.toString()
       if 
         result == "TranscriptsDisabled"
       then
-        result
+        None
       else
-        result.drop(12).dropRight(2)
+        Some(result.drop(12).dropRight(2))
   
   def scrapSite(url: String): Option[String] =
     Thread.sleep(Config.interval)
@@ -216,7 +216,7 @@ object UrlFactory:
 
 trait FileReader:
   def readFile(fileName: String): Option[String] =
-    try Some { (for line <- Source.fromFile(fileName).getLines() yield line).mkString }
+    try Some { (for line <- Source.fromFile(fileName).getLines() yield line + "\n").mkString.stripTrailing }
     catch
       case e: Exception => None
 

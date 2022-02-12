@@ -18,19 +18,16 @@ class TestSuite extends AnyFunSuite:
 
   test("test ScalaTest") {assert (true == true)}
   // test("Jsoup scrapping") {assert(Jsoup.connect("http://en.wikipedia.org/").get().title() == "Wikipedia, the free encyclopedia")}
-  test("IOSingleton.readInput") {
-    for 
-      (code, sample) <- IOSingleton.readFile("letters.txt").zip(List("aaa", "bbb", "ccc"))
-    do
-      assert(code == sample)
-    }
+  test("IOSingleton.readFile") {
+    val result = IOSingleton.readFile("letters.txt").get
+    val pattern = "aaa\nbbb\nccc"
+    assert(result == pattern)
+  }
 
   test("UrlFactory.wikipedia") {
-    for 
-      (code, sample) <- IOSingleton.readFile("letters.txt").zip(List("aaa", "bbb", "ccc"))
-    do
-      assert(s"https://en.wikipedia.org/wiki/${code}" == s"https://en.wikipedia.org/wiki/${sample}")
-    }
+    val code = "aaa"
+    assert(s"https://en.wikipedia.org/wiki/${code}" == UrlFactory.wikipedia(code))
+  }  
   
   test("PartsOfSpeechFinder.nouns") {
     val nounsInSample = List("science", "fiction", "action", "film", "series", "future", "humanity", "reality", 
