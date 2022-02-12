@@ -32,28 +32,6 @@ def main(fileName: String, cooldown: Int): Unit =
       .map(rawText => PartsOfSpeechFinder.nouns(rawText))
       .map(nouns => for noun <- nouns yield IOSingleton.getArticle(noun))
       .foreach(println(_))
-    
-
-    //     .map(nouns => for noun <- nouns yield UrlFactory.wikipedia(noun))
-    //     .foreach(v => println(v))
-        //.map(urls => for url <- urls yield Scraper.scrapSite(url, interval))
-
-  // for
-  //   code <- IOSingleton.readInput(fileName)
-  // do
-  //   val rawText = Scraper.scrapSubtitles(code)
-  //   if 
-  //     rawText != "TranscriptsDisabled"
-  //   then
-  //     for
-  //       noun <- PartsOfSpeechFinder.nouns(rawText)
-  //     do
-  //       println(noun)
-  //       val wikiSite = Scraper.scrapSite(UrlFactory.wikipedia(noun))
-  //       if
-  //         wikiSite != "Error 40x"
-  //       then
-  //         TextFormatter.pageFormatting(wikiSite)
 
 
 
@@ -212,13 +190,20 @@ object PartsOfSpeechFinder:
 object Scraper:
   
   def scrapSubtitles(code: String): String =
-    os.proc((pwd.toString() +  "/pyve/bin/python3"), "scraper.py")
-      .call(cwd = null, stdin = code).out.toString().drop(12).dropRight(2)
+    val result = os.proc((pwd.toString() +  "/pyve/bin/python3"), "scraper.py").call(cwd = null, stdin = code).out.toString()
+      if 
+        result == "TranscriptsDisabled"
+      then
+        result
+      else
+        result.drop(12).dropRight(2)
   
-  def scrapSite(url: String): String =
+  def scrapSite(url: String): Option[String] =
     Thread.sleep(Config.interval)
-    Jsoup.connect(url).get().select("p").toString
-
+    try
+      Some(Jsoup.connect(url).timeout(1000*5).get.select("p").toString)
+    catch
+      case e: Exception => None
 
 
 
@@ -230,11 +215,11 @@ object UrlFactory:
 
 
 trait FileReader:
-  def readFile(fileName: String): Iterator[String] = 
-    for 
-      line <- Source.fromFile(fileName).getLines()
-    yield
-      line
+  def readFile(fileName: String): Option[String] =
+    try Some { (for line <- Source.fromFile(fileName).getLines() yield line).mkString }
+    catch
+      case e: Exception => None
+
 
 
 
@@ -267,6 +252,10 @@ object IOSingleton extends FileReader, WriterToFile, checkPresence, mkDir:
     if
       !checkPresence("/articles" ++ "/" ++ noun)
     then
-      writeToFile(path = "articles/", name = noun, text = Scraper.scrapSite(noun))
-    readFile("articles" ++ "/" ++ noun ++ "txt").mkString
+      Scraper.scrapSite(UrlFactory.wikipedia(noun)) match
+        case Some(document) =>  writeToFile(path = "articles/", name = noun, text = document)
+        case None => "Not found"
+    else
+        None
+    readFile("articles" ++ "/" ++ noun ++ ".txt").mkString
       

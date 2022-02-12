@@ -20,14 +20,14 @@ class TestSuite extends AnyFunSuite:
   // test("Jsoup scrapping") {assert(Jsoup.connect("http://en.wikipedia.org/").get().title() == "Wikipedia, the free encyclopedia")}
   test("IOSingleton.readInput") {
     for 
-      (code, sample) <- IOSingleton.readInput("letters.txt").zip(List("aaa", "bbb", "ccc"))
+      (code, sample) <- IOSingleton.readFile("letters.txt").zip(List("aaa", "bbb", "ccc"))
     do
       assert(code == sample)
     }
 
   test("UrlFactory.wikipedia") {
     for 
-      (code, sample) <- IOSingleton.readInput("letters.txt").zip(List("aaa", "bbb", "ccc"))
+      (code, sample) <- IOSingleton.readFile("letters.txt").zip(List("aaa", "bbb", "ccc"))
     do
       assert(s"https://en.wikipedia.org/wiki/${code}" == s"https://en.wikipedia.org/wiki/${sample}")
     }
