@@ -30,14 +30,29 @@ def main(fileName: String, interval: Int): Unit =
     .map(code => (code, Scraper.scrapCaptions(code).get))
     .filter((code, rawCaptions) => !(rawCaptions eq None))
     .map((code, rawCaptions) => (code, rawCaptions, PartsOfSpeechFinder.nouns(rawCaptions).toList))
-    .map((code, rawCaptions, nouns) => (code, rawCaptions, nouns.toList))
-    //.foreach((code, rawCaptions, nouns) => (code, println(rawCaptions), nouns))
-    .map((code, rawCaptions, nouns) => (code, rawCaptions, nouns))
-   
+    .map((code, rawCaptions, nouns) => (code, 
+                                        rawCaptions, for
+                                                        noun <- nouns
+                                                      yield
+                                                        val newLink = UrlFactory.wikipedia(noun)
+                                                        val newArticle = IOSingleton.getArticle(noun)                                                       
+                                                        new WikiEntry (noun, link = newLink, rawArticle = newArticle)))
+    .map((code, rawCaptions, nouns) => FinalOutput(code, rawCaptions, nouns))
+    .map(finalOutput => IOSingleton.writeToFile(s"outputs/${finalOutput.code}.xml", TextFormatter.convertFinalOutputToXML(finalOutput)))
+
 
     
 
 case class WikiEntry(val noun: String, val link: String, val rawArticle: String)
+
+
+
+class FinalOutput(val code: String, 
+            val rawCaptions: String = null, 
+            val wikiEntries: List[WikiEntry])
+
+
+
 
 object Config:
   var interval: Int = _
@@ -141,15 +156,8 @@ object TextFormatter extends RegexRemover:
   
   def convertFinalOutputToXML(output: FinalOutput): String =
     mergeXML(code = output.code, 
-            captionsXML = toCaptionsXML(output.rawCaptions), 
-            pagesXMLs = (for page <- output.wikiEntries yield toPageXML(page)))
-
-
-
-class FinalOutput(val code: String, 
-            val rawCaptions: String = null, 
-            val wikiEntries: List[WikiEntry])
-  
+           captionsXML = toCaptionsXML(output.rawCaptions), 
+          pagesXMLs = (for page <- output.wikiEntries yield toPageXML(page)))
 
 
 
