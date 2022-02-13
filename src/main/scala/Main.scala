@@ -1,5 +1,5 @@
 import scala.io.Source
-import scala.collection.mutable
+import scala.collection.mutable.ArrayBuilder
 import scala.xml._
 
 import os._
@@ -27,23 +27,17 @@ def main(fileName: String, interval: Int): Unit =
   then
     IOSingleton.mkDir("outputs")
   IOSingleton.readFile(fileName)
-    .map(code => Output(code = code, rawCaptions = Scraper.scrapCaptions(code).get))
-    .filter(output => output.rawCaptions != "Error")
-    .map(output => (output, PartsOfSpeechFinder.nouns(output.rawCaptions)))
-    .map((output, nouns) => (output, for noun <- nouns yield (noun, UrlFactory.wikipedia(noun))))
-    .map((output, nounsAndLinks) => (output, for nl <- nounsAndLinks yield WikiEntry(noun = nl(0), link = nl(1), rawArticle = Scraper.scrapSite(nl(1)).get)))
-    .map((output, wikiEntries) => addEntries(output, wikiEntries))
-    .map(output => (output, TextFormatter.convertOutputToXML(output)))
-    .map((output, xml) => IOSingleton.writeToFile(path = s"outputs/${output.code}.xml", text = xml))
+    .map(code => (code, Scraper.scrapCaptions(code).get))
+    .filter((code, rawCaptions) => !(rawCaptions eq None))
+    .map((code, rawCaptions) => (code, rawCaptions, PartsOfSpeechFinder.nouns(rawCaptions).toList))
+    .map((code, rawCaptions, nouns) => (code, rawCaptions, nouns.toList))
+    //.foreach((code, rawCaptions, nouns) => (code, println(rawCaptions), nouns))
+    .map((code, rawCaptions, nouns) => (code, rawCaptions, nouns))
+   
 
+    
 
-def addEntries(output: Output, entries: Set[WikiEntry]): Output =
-  for
-    e <- entries
-  do
-    output.addEntry(e)
-  output
-
+case class WikiEntry(val noun: String, val link: String, val rawArticle: String)
 
 object Config:
   var interval: Int = _
@@ -145,30 +139,17 @@ object TextFormatter extends RegexRemover:
   def mergeXML(code: String, captionsXML: xml.Elem, pagesXMLs: Seq[xml.Elem]): String =
     (s"<movie code = ${code}>\n${captionsXML}\n${pagesXMLs.mkString}\n</movie>").format(PrettyPrinter(maxLineLength, 2))
   
-  def convertOutputToXML(output: Output): String =
+  def convertFinalOutputToXML(output: FinalOutput): String =
     mergeXML(code = output.code, 
             captionsXML = toCaptionsXML(output.rawCaptions), 
-            pagesXMLs = (for page <- output.wikiEntries.result yield toPageXML(page)))
+            pagesXMLs = (for page <- output.wikiEntries yield toPageXML(page)))
 
 
 
-class Output(val code: String, 
+class FinalOutput(val code: String, 
             val rawCaptions: String = null, 
-            val wikiEntries: ArrayBuilder[WikiEntry] = Array.newBuilder[WikiEntry]):
-
-  def addEntry(noun: String, link: String, rawArticle: String): Unit =
-    wikiEntries.addOne(new WikiEntry(noun = noun, 
-                                link = link, 
-                                rawArticle = rawArticle))
+            val wikiEntries: List[WikiEntry])
   
-  def addEntry(entry: WikiEntry): Unit =
-    wikiEntries.addOne(entry)
-  
-  def result(): Unit = wikiEntries.result
-  
-  
-  
-case class WikiEntry(val noun: String, val link: String, val rawArticle: String)
 
 
 
@@ -261,11 +242,11 @@ object IOSingleton extends FileReader, WriterToFile, checkPresence, mkDir:
   
   def getArticle(noun: String): String =
     if
-      !checkPresence("/articles" ++ "/" ++ noun)
+      !checkPresence("/articles" ++ "/" ++ noun ++ ".txt")
     then
       Scraper.scrapSite(UrlFactory.wikipedia(noun)) match
-        case Some(document) =>  writeToFile(path = "articles/" ++ noun, text = document)
-        case None => "Not found"
+        case Some(document) =>  writeToFile(path = "articles/" ++ noun ++ ".txt", text = document)
+        case None => None
     else
         None
     readFile("articles" ++ "/" ++ noun ++ ".txt").mkString

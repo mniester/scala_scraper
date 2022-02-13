@@ -15,9 +15,8 @@ class TestPrint extends AnyFunSuite:
 
   test("TextForrmatter.mergeXML") {
      val code = "FakeCode"
-     val output = new Output(code = code, rawCaptions = matrix)
+     val entryOne = new WikiEntry(noun = "entryOne", link = "entry.one", rawArticle = matrix)
      val entryTwo = new WikiEntry(noun = "entryTwo", link = "entry.two", rawArticle = matrix)
-     output.addEntry(noun = "entryOne", link = "entry.one", rawArticle = matrix)
-     output.addEntry(entryTwo)
-     println(TextFormatter.convertOutputToXML(output))
+     val finalOutput = FinalOutput(code, matrix, List(entryOne, entryTwo))
+     println(TextFormatter.convertFinalOutputToXML(finalOutput))
    }
