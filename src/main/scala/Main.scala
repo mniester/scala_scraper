@@ -35,20 +35,18 @@ def main(fileName: String, interval: Int): Unit =
                                                         noun <- nouns
                                                       yield
                                                         val newLink = UrlFactory.wikipedia(noun)
-                                                        val newArticle = IOSingleton.getArticle(noun)                                                       
-                                                        new WikiEntry (noun, link = newLink, rawArticle = newArticle)))
-    .map((code, rawCaptions, nouns) => FinalOutput(code, rawCaptions, nouns))
-    .map(finalOutput => IOSingleton.writeToFile(s"outputs/${finalOutput.code}.xml", TextFormatter.convertFinalOutputToXML(finalOutput)))
+                                                        val hasArticle = IOSingleton.fetchArticle(noun)                                                       
+                                                        new WikiEntry (noun, link = newLink, hasArticle = hasArticle)))
+    .map((code, rawCaptions, entries) => FinalOutput(code, rawCaptions, entries))
+    .map(finalOutput => IOSingleton.xmlsPipe(finalOutput))
 
 
-    
-
-case class WikiEntry(val noun: String, val link: String, val rawArticle: String)
+case class WikiEntry(val noun: String, val link: String, val hasArticle: Boolean)
 
 
 
 class FinalOutput(val code: String, 
-            val rawCaptions: String = null, 
+            val rawCaptions: String, 
             val wikiEntries: List[WikiEntry])
 
 
@@ -144,20 +142,13 @@ object TextFormatter extends RegexRemover:
     <plain>{ paragraphsFormatting(rawCaptions) }</plain>
     </captions>
   
-  def toPageXML(wikiEntry: WikiEntry): xml.Elem =
-    <page noun = { wikiEntry.noun }>
-    <link>{ wikiEntry.link }</link>
-    <raw>{ wikiEntry.rawArticle }</raw>
-    <plain>{ paragraphsFormatting(wikiEntry.rawArticle) }</plain>
+  def toPageXML(noun: String, link: String, rawArticle: String): xml.Elem =
+    <page noun = { noun }>
+    <link>{ link }</link>
+    <raw>{ rawArticle }</raw>
+    <plain>{ paragraphsFormatting(rawArticle) }</plain>
     </page>
   
-  def mergeXML(code: String, captionsXML: xml.Elem, pagesXMLs: Seq[xml.Elem]): String =
-    (s"<movie code = ${code}>\n${captionsXML}\n${pagesXMLs.mkString}\n</movie>").format(PrettyPrinter(maxLineLength, 2))
-  
-  def convertFinalOutputToXML(output: FinalOutput): String =
-    mergeXML(code = output.code, 
-           captionsXML = toCaptionsXML(output.rawCaptions), 
-          pagesXMLs = (for page <- output.wikiEntries yield toPageXML(page)))
 
 
 
@@ -215,11 +206,10 @@ object UrlFactory:
 
 
 trait FileReader:
-  def readFile(fileName: String): Option[String] =
-    try Some { (for line <- Source.fromFile(fileName).getLines() yield line + "\n").mkString.stripTrailing }
+  def readFile(filePath: String): Option[String] =
+    try Some { (for line <- Source.fromFile(filePath).getLines() yield line + "\n").mkString.stripTrailing }
     catch
       case e: Exception => None
-
 
 
 
@@ -247,15 +237,23 @@ trait mkDir:
 
 
 object IOSingleton extends FileReader, WriterToFile, checkPresence, mkDir:
-  
-  def getArticle(noun: String): String =
+
+  def fetchArticle(noun: String): Boolean =
     if
       !checkPresence("/articles" ++ "/" ++ noun ++ ".txt")
     then
-      Scraper.scrapSite(UrlFactory.wikipedia(noun)) match
-        case Some(document) =>  writeToFile(path = "articles/" ++ noun ++ ".txt", text = document)
-        case None => None
+      val document = Scraper.scrapSite(UrlFactory.wikipedia(noun))
+      if
+        document ne None 
+      then 
+        writeToFile(path = "articles/" ++ noun ++ ".txt", text = document.get)
+        true
+      else
+        false
     else
-        None
-    readFile("articles" ++ "/" ++ noun ++ ".txt").mkString
-      
+      true
+  
+  def xmlsPipe(finalOutput: FinalOutput): Unit =
+    val endPath = "outputs/" ++ s"${finalOutput.code}" ++ ".xml"
+    IOSingleton.writeToFile(endPath, TextFormatter.toCaptionsXML(finalOutput.rawCaptions).toString)
+    finalOutput.wikiEntries.filter(entry => entry.hasArticle).foreach(entry => IOSingleton.writeToFile(endPath, TextFormatter.toPageXML(entry.noun, entry.link, IOSingleton.readFile(s"articles/${entry.noun}.txt").get).toString))
