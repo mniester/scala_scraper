@@ -7,7 +7,7 @@ from youtube_transcript_api._errors import TranscriptsDisabled
 for code in stdin:
     try:
         result = ' ' + TextFormatter().format_transcript(transcript = YouTubeTranscriptApi.get_transcript(code))
-    except TranscriptsDisabled:
-        result = "TranscriptsDisabled"
+    except:
+        result = "Error"
     stdout.write(result)
     stdout.flush()

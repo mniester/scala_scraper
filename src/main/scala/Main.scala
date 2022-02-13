@@ -16,8 +16,8 @@ import scala.collection.mutable.ArrayBuilder
 
 
 @main 
-def main(fileName: String, cooldown: Int): Unit =
-  Config.setInterval(cooldown)
+def main(fileName: String, interval: Int): Unit =
+  Config.setInterval(interval)
   if
     !IOSingleton.checkPresence("articles")
   then
@@ -27,19 +27,29 @@ def main(fileName: String, cooldown: Int): Unit =
   then
     IOSingleton.mkDir("outputs")
   IOSingleton.readFile(fileName)
-      .map(code => Scraper.scrapSubtitles(code))
-      .filter(rawText => rawText != None)
-      .map(rawText => PartsOfSpeechFinder.nouns(rawText.get))
-      //.map(nouns => for noun <- nouns yield IOSingleton.getArticle(noun))
-      .foreach(println(_))
+    .map(code => Output(code = code, rawCaptions = Scraper.scrapCaptions(code).get))
+    .filter(output => output.rawCaptions != "Error")
+    .map(output => (output, PartsOfSpeechFinder.nouns(output.rawCaptions)))
+    .map((output, nouns) => (output, for noun <- nouns yield (noun, UrlFactory.wikipedia(noun))))
+    .map((output, nounsAndLinks) => (output, for nl <- nounsAndLinks yield WikiEntry(noun = nl(0), link = nl(1), rawArticle = Scraper.scrapSite(nl(1)).get)))
+    .map((output, wikiEntries) => addEntries(output, wikiEntries))
+    .map(output => (output, TextFormatter.convertOutputToXML(output)))
+    .map((output, xml) => IOSingleton.writeToFile(path = s"outputs/${output.code}.xml", text = xml))
 
+
+def addEntries(output: Output, entries: Set[WikiEntry]): Output =
+  for
+    e <- entries
+  do
+    output.addEntry(e)
+  output
 
 
 object Config:
   var interval: Int = _
 
   def setInterval(nr: Int): Unit =
-    var interval = nr * 1000
+    var interval = nr.abs * 1000
 
 
 
@@ -143,7 +153,7 @@ object TextFormatter extends RegexRemover:
 
 
 class Output(val code: String, 
-            var rawCaptions: String = null, 
+            val rawCaptions: String = null, 
             val wikiEntries: ArrayBuilder[WikiEntry] = Array.newBuilder[WikiEntry]):
 
   def addEntry(noun: String, link: String, rawArticle: String): Unit =
@@ -151,7 +161,7 @@ class Output(val code: String,
                                 link = link, 
                                 rawArticle = rawArticle))
   
-  def addEntry(entry: WikiEntry): Unit=
+  def addEntry(entry: WikiEntry): Unit =
     wikiEntries.addOne(entry)
   
   def result(): Unit = wikiEntries.result
@@ -189,10 +199,11 @@ object PartsOfSpeechFinder:
 
 object Scraper:
   
-  def scrapSubtitles(code: String): Option[String] =
+  def scrapCaptions(code: String): Option[String] =
+    Thread.sleep(Config.interval)
     val result = os.proc((pwd.toString() +  "/pyve/bin/python3"), "scraper.py").call(cwd = null, stdin = code).out.toString()
       if 
-        result == "TranscriptsDisabled"
+        result == "Error"
       then
         None
       else
@@ -224,8 +235,8 @@ trait FileReader:
 
 
 trait WriterToFile:
-  def writeToFile(path: String = "", name: String, text: String): Unit = 
-    val pw = new PrintWriter(new File(path ++ name ++ ".txt"))
+  def writeToFile(path: String, text: String): Unit = 
+    val pw = new PrintWriter(new File(path))
     pw.write(text)
     pw.close
 
@@ -253,7 +264,7 @@ object IOSingleton extends FileReader, WriterToFile, checkPresence, mkDir:
       !checkPresence("/articles" ++ "/" ++ noun)
     then
       Scraper.scrapSite(UrlFactory.wikipedia(noun)) match
-        case Some(document) =>  writeToFile(path = "articles/", name = noun, text = document)
+        case Some(document) =>  writeToFile(path = "articles/" ++ noun, text = document)
         case None => "Not found"
     else
         None
