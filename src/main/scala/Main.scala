@@ -17,6 +17,10 @@ import opennlp.tools.tokenize.WhitespaceTokenizer
 
 @main 
 def main(fileName: String, interval: Int): Unit =
+  if
+    interval == 0
+  then
+    throw new Exception("Interval number must be other than zero")
   Config.setInterval(interval)
   if
     !IOSingleton.checkPresence("articles")
@@ -26,11 +30,6 @@ def main(fileName: String, interval: Int): Unit =
     !IOSingleton.checkPresence("outputs")
   then
     IOSingleton.mkDir("outputs")
-  // for 
-  //   code <- IOSingleton.readFile(fileName)
-  // do
-  //   val captions = Scraper.scrapCaptions(code).get
-  //   println(TextFormatter.run(captions))
   IOSingleton.readFile(fileName)
     .map(code => (code, Scraper.scrapCaptions(code).get))
     .filter((code, rawCaptions) => !(rawCaptions eq None))
@@ -98,7 +97,11 @@ object TextFormatter extends RegexRemover:
       then
         builder.addOne('\n').append(text)
       else
-        val cutPoint = text.slice(0, maxLineLength).lastIndexOf(' ')
+        var cutPoint = text.slice(0, maxLineLength).lastIndexOf(' ')
+        if 
+          cutPoint < 1
+        then
+          cutPoint = maxLineLength
         val (alpha, beta) = text.splitAt(cutPoint)
         builder.addOne('\n').append(alpha.stripLeading)
         narrowingText(beta, builder)
@@ -142,7 +145,7 @@ object TextFormatter extends RegexRemover:
       paragraphsFormatting(text)
   
   def toCaptionsXML(rawCaptions: String): xml.Elem =
-    val formatted = run(rawCaptions) 
+    val formatted = run(rawCaptions)
     <captions>
     <raw>{ rawCaptions }</raw>
     <plain>{ formatted }</plain>
@@ -214,11 +217,10 @@ object UrlFactory:
 
 trait FileReader:
   def readFile(filePath: String): Option[String] =
-    try 
-      Some { (for line <- Source.fromFile(filePath).getLines() yield line + "\n").mkString.stripTrailing }
+    try
+      Some(os.read(pwd / RelPath(filePath)).stripTrailing)
     catch
       case e: Exception => None
-
 
 
 trait WriterToFile:
@@ -262,4 +264,4 @@ object IOSingleton extends FileReader, WriterToFile, checkPresence, mkDir:
     IOSingleton.writeToFile(endPath, TextFormatter.toCaptionsXML(finalOutput.rawCaptions).toString)
     finalOutput.wikiEntries
         .filter(entry => entry.hasArticle)
-        .foreach(entry => IOSingleton.writeToFile(endPath, TextFormatter.toPageXML(entry.noun, entry.link, IOSingleton.readFile(s"articles/${entry.noun}.txt").get).mkString))
+        .foreach(entry => IOSingleton.writeToFile(endPath, TextFormatter.toPageXML(entry.noun, entry.link, IOSingleton.readFile(s"articles/${entry.noun}.txt").getOrElse("Not Found")).mkString))
