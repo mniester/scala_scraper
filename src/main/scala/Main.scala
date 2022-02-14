@@ -26,6 +26,11 @@ def main(fileName: String, interval: Int): Unit =
     !IOSingleton.checkPresence("outputs")
   then
     IOSingleton.mkDir("outputs")
+  // for 
+  //   code <- IOSingleton.readFile(fileName)
+  // do
+  //   val captions = Scraper.scrapCaptions(code).get
+  //   println(TextFormatter.run(captions))
   IOSingleton.readFile(fileName)
     .map(code => (code, Scraper.scrapCaptions(code).get))
     .filter((code, rawCaptions) => !(rawCaptions eq None))
@@ -137,16 +142,18 @@ object TextFormatter extends RegexRemover:
       paragraphsFormatting(text)
   
   def toCaptionsXML(rawCaptions: String): xml.Elem =
+    val formatted = run(rawCaptions) 
     <captions>
     <raw>{ rawCaptions }</raw>
-    <plain>{ paragraphsFormatting(rawCaptions) }</plain>
+    <plain>{ formatted }</plain>
     </captions>
   
   def toPageXML(noun: String, link: String, rawArticle: String): xml.Elem =
+    val formatted = run(rawArticle) 
     <page noun = { noun }>
     <link>{ link }</link>
     <raw>{ rawArticle }</raw>
-    <plain>{ paragraphsFormatting(rawArticle) }</plain>
+    <plain>{ formatted }</plain>
     </page>
   
 
@@ -207,7 +214,8 @@ object UrlFactory:
 
 trait FileReader:
   def readFile(filePath: String): Option[String] =
-    try Some { (for line <- Source.fromFile(filePath).getLines() yield line + "\n").mkString.stripTrailing }
+    try 
+      Some { (for line <- Source.fromFile(filePath).getLines() yield line + "\n").mkString.stripTrailing }
     catch
       case e: Exception => None
 
@@ -215,17 +223,14 @@ trait FileReader:
 
 trait WriterToFile:
   def writeToFile(path: String, text: String): Unit =
-    os.write.append(os.pwd/RelPath(path), text)
+    os.write.append(pwd/RelPath(path), text)
 
 
 
 
 trait checkPresence:
   def checkPresence(searched: String): Boolean =
-    val (path, item) = searched.splitAt(searched.lastIndexOf('/') + 1)
-    val paths = os.list(os.Path(pwd.toString ++ path)).map(_.toString)
-    val lasts = paths.map(x => x.slice(x.lastIndexOf('/') + 1, x.length))
-    lasts.contains(item)
+    os.exists(pwd / RelPath(searched))
 
 
 
@@ -239,7 +244,7 @@ object IOSingleton extends FileReader, WriterToFile, checkPresence, mkDir:
 
   def fetchArticle(noun: String): Boolean =
     if
-      !checkPresence("/articles" ++ "/" ++ noun ++ ".txt")
+      !checkPresence("articles" ++ "/" ++ noun ++ ".txt")
     then
       val document = Scraper.scrapSite(UrlFactory.wikipedia(noun))
       if
@@ -255,4 +260,6 @@ object IOSingleton extends FileReader, WriterToFile, checkPresence, mkDir:
   def xmlsPipe(finalOutput: FinalOutput): Unit =
     val endPath = "outputs/" ++ s"${finalOutput.code}" ++ ".xml"
     IOSingleton.writeToFile(endPath, TextFormatter.toCaptionsXML(finalOutput.rawCaptions).toString)
-    finalOutput.wikiEntries.filter(entry => entry.hasArticle).foreach(entry => IOSingleton.writeToFile(endPath, TextFormatter.toPageXML(entry.noun, entry.link, IOSingleton.readFile(s"articles/${entry.noun}.txt").get).toString))
+    finalOutput.wikiEntries
+        .filter(entry => entry.hasArticle)
+        .foreach(entry => IOSingleton.writeToFile(endPath, TextFormatter.toPageXML(entry.noun, entry.link, IOSingleton.readFile(s"articles/${entry.noun}.txt").get).mkString))
