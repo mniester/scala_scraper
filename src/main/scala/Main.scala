@@ -1,18 +1,18 @@
 import scala.io.Source
 import scala.collection.mutable.ArrayBuilder
 import scala.xml._
+import scala.util.matching.Regex
+import scala.collection.mutable.ArrayBuilder
 
 import os._
 
-import java.io.PrintWriter
-import java.io.File
+
 import java.io.FileInputStream
 
 import org.jsoup.Jsoup
 import opennlp.tools.postag._
 import opennlp.tools.tokenize.WhitespaceTokenizer
-import scala.util.matching.Regex
-import scala.collection.mutable.ArrayBuilder
+
 
 
 @main 
@@ -214,10 +214,9 @@ trait FileReader:
 
 
 trait WriterToFile:
-  def writeToFile(path: String, text: String): Unit = 
-    val pw = new PrintWriter(new File(path))
-    pw.write(text)
-    pw.close
+  def writeToFile(path: String, text: String): Unit =
+    os.write.append(os.pwd/RelPath(path), text)
+
 
 
 
