@@ -144,20 +144,20 @@ object TextFormatter extends RegexRemover:
     else
       paragraphsFormatting(text)
   
-  def toCaptionsXML(rawCaptions: String): xml.Elem =
+  def toCaptionsXML(rawCaptions: String): String =
     val formatted = run(rawCaptions)
-    <captions>
-    <raw>{ rawCaptions }</raw>
-    <plain>{ formatted }</plain>
-    </captions>
+    s"""<captions>
+    <raw>${ rawCaptions }</raw>
+    <plain>${ formatted }</plain>
+    </captions>"""
   
-  def toPageXML(noun: String, link: String, rawArticle: String): xml.Elem =
+  def toPageXML(noun: String, link: String, rawArticle: String): String =
     val formatted = run(rawArticle) 
-    <page noun = { noun }>
-    <link>{ link }</link>
-    <raw>{ rawArticle }</raw>
-    <plain>{ formatted }</plain>
-    </page>
+    s""" <page noun = ${ noun }>
+    <link>${ link }</link>
+    <raw>${ rawArticle }</raw>
+    <plain>${ formatted }</plain>
+    </page>""""
   
 
 
