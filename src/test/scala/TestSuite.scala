@@ -78,7 +78,7 @@ class TestSuite extends AnyFunSuite:
           <raw>{ matrix }</raw>
           <plain>{ formatter invokePrivate func(matrix) }</plain>
           </captions>
-      val result = TextFormatter.toCaptionsXML(matrix)
+      val result = xml.XML.loadString(TextFormatter.toCaptionsXML(matrix))
       assert ((pattern \\ "raw").text equals (result \\ "raw").text)
       assert ((pattern \\ "plain").text equals (result \\ "plain").text)
    }
@@ -92,7 +92,7 @@ class TestSuite extends AnyFunSuite:
           <raw>{ matrix }</raw>
           <plain>{ formatter invokePrivate func(matrix) }</plain>
           </page>
-      val result = TextFormatter.toPageXML(noun, link, matrix)
+      val result = scala.xml.XML.loadString(TextFormatter.toPageXML(noun, link, matrix))
       assert (noun equals (result \@ "noun"))
       assert (link equals (result \\ "link").text)
       assert (matrix equals (result \\ "raw").text)

@@ -1,8 +1,6 @@
 import scala.io.Source
 import scala.collection.mutable.ArrayBuilder
-import scala.xml._
 import scala.util.matching.Regex
-import scala.collection.mutable.ArrayBuilder
 
 import os._
 
@@ -112,7 +110,7 @@ object TextFormatter extends RegexRemover:
           .split("\n")
 
     val result = StringBuilder()
-    lineSplitting(text).map(x => narrowingText(x)).map(y => result.append(y))
+    lineSplitting(removeBoth(text)).map(x => narrowingText(x)).map(y => result.append(y))
     result.toString.replace("  ", " ").stripLeading
 
   private def capitalizeSentences(text: String): String =
@@ -149,15 +147,15 @@ object TextFormatter extends RegexRemover:
     s"""<captions>
     <raw>${ rawCaptions }</raw>
     <plain>${ formatted }</plain>
-    </captions>"""
+    </captions>\n"""
   
   def toPageXML(noun: String, link: String, rawArticle: String): String =
     val formatted = run(rawArticle) 
-    s""" <page noun = ${ noun }>
+    s"""\n<page noun = "${ noun }">
     <link>${ link }</link>
     <raw>${ rawArticle }</raw>
     <plain>${ formatted }</plain>
-    </page>""""
+    </page>\n"""
   
 
 
