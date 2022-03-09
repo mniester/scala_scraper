@@ -1,6 +1,8 @@
 import os._
 import org.scalatest.funsuite.AnyFunSuite
 
+import strings.TextFormatter
+
 
 class TestPrint extends AnyFunSuite:
   

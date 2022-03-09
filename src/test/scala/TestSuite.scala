@@ -3,6 +3,11 @@ import org.scalatest.PrivateMethodTester._
 import org.jsoup.Jsoup
 import scala.io.Source
 
+import IO.IOSingleton
+import strings.UrlFactory
+import ML.PartsOfSpeechFinder
+import strings.TextFormatter
+
 
 class TestSuite extends AnyFunSuite:
 
