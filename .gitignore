@@ -2,11 +2,11 @@
 .bsp
 .metals
 .vscode
-testcodes.txt
 articles
 outputs
 pyve
 project
 target
+
 TestWork*
 work*
