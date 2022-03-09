@@ -43,8 +43,8 @@ def main(fileName: String, interval: Int): Unit =
     .map(finalOutput => IOSingleton.xmlsPipe(finalOutput))
 
 
+    
 case class WikiEntry(val noun: String, val link: String, val hasArticle: Boolean)
-
 
 
 class FinalOutput(val code: String, 
@@ -128,11 +128,11 @@ object TextFormatter extends RegexRemover:
     result.toString
 
   private def bigLettersStyleFormatter(text: String): String =
-    capitalizeSentences(paragraphsFormatting((text
+    capitalizeSentences(paragraphsFormatting(text
         .replaceAll(">>", "-")
         .toLowerCase()
         .replaceAll(" i ", " I ")
-        .stripLeading())))
+        .stripLeading()))
 
   def run(text: String): String =
     if 

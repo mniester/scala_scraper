@@ -6,20 +6,20 @@ import scala.io.Source
 
 class TestSuite extends AnyFunSuite:
 
-  val matrix = """The Matrix is a 1999 science fiction action film[5][6] 
+  val sample = """The sample is a 1999 science fiction action film[5][6] 
       |written and directed by the Wachowskis.[a] It is the first installment in The 
-      |Matrix film series, starring Keanu Reeves, Laurence Fishburne, Carrie-Anne Moss, 
+      |sample film series, starring Keanu Reeves, Laurence Fishburne, Carrie-Anne Moss, 
       |Hugo Weaving, and Joe Pantoliano. It depicts a dystopian future in which humanity is 
-      |unknowingly trapped inside a simulated reality, the Matrix, which intelligent machines 
+      |unknowingly trapped inside a simulated reality, the sample, which intelligent machines 
       |have created to distract humans while using their bodies as an energy source.[7] 
       |When computer programmer Thomas Anderson, under the hacker alias "Neo", 
       |uncovers the truth, he "is drawn into a rebellion against the machines"[7] 
-      |along with other people who have been freed from the Matrix.""".stripMargin
+      |along with other people who have been freed from the sample.""".stripMargin
 
   test("test ScalaTest") {assert (true == true)}
-  // test("Jsoup scrapping") {assert(Jsoup.connect("http://en.wikipedia.org/").get().title() == "Wikipedia, the free encyclopedia")}
+  test("Jsoup scrapping") {assert(Jsoup.connect("http://en.wikipedia.org/").get().title() == "Wikipedia, the free encyclopedia")}
   test("IOSingleton.readFile") {
-    val result = IOSingleton.readFile("letters.txt").get
+    val result = IOSingleton.readFile("src/test/scala/letters.txt").get
     val pattern = "aaa\nbbb\nccc"
     assert(result == pattern)
   }
@@ -33,7 +33,7 @@ class TestSuite extends AnyFunSuite:
     val nounsInSample = List("science", "fiction", "action", "film", "series", "future", "humanity", "reality", 
                       "machines","humans", "bodies", "energy", "source", "computer", "programmer",
                       "hacker", "truth", "rebellion", "people")
-    val nounsFound = PartsOfSpeechFinder.nouns(matrix)
+    val nounsFound = PartsOfSpeechFinder.nouns(sample)
     var counter: Int = 0
     for 
       s <- nounsInSample 
@@ -75,28 +75,28 @@ class TestSuite extends AnyFunSuite:
       val formatter = TextFormatter
       val func =  PrivateMethod[xml.Elem](Symbol("paragraphsFormatting"))
       val pattern = <captions>
-          <raw>{ matrix }</raw>
-          <plain>{ formatter invokePrivate func(matrix) }</plain>
+          <raw>{ sample }</raw>
+          <plain>{ formatter invokePrivate func(sample) }</plain>
           </captions>
-      val result = xml.XML.loadString(TextFormatter.toCaptionsXML(matrix))
+      val result = xml.XML.loadString(TextFormatter.toCaptionsXML(sample))
       assert ((pattern \\ "raw").text equals (result \\ "raw").text)
       assert ((pattern \\ "plain").text equals (result \\ "plain").text)
    }
    test("TextFormatter.pageXML") {
       val formatter = TextFormatter
       val func =  PrivateMethod[String](Symbol("paragraphsFormatting"))
-      val noun = "matrix"
-      val link = "matrix.com"
+      val noun = "sample"
+      val link = "sample.com"
       val pattern = <page noun = { noun }>
           <link>{ link }</link>
-          <raw>{ matrix }</raw>
-          <plain>{ formatter invokePrivate func(matrix) }</plain>
+          <raw>{ sample }</raw>
+          <plain>{ formatter invokePrivate func(sample) }</plain>
           </page>
-      val result = scala.xml.XML.loadString(TextFormatter.toPageXML(noun, link, matrix))
+      val result = scala.xml.XML.loadString(TextFormatter.toPageXML(noun, link, sample))
       assert (noun equals (result \@ "noun"))
       assert (link equals (result \\ "link").text)
-      assert (matrix equals (result \\ "raw").text)
-      assert (formatter invokePrivate func(matrix) equals (result \\ "plain").text)
+      assert (sample equals (result \\ "raw").text)
+      assert (formatter invokePrivate func(sample) equals (result \\ "plain").text)
    }
    test("IOSingleton.checkPresence"){
      assert (IOSingleton.checkPresence("src") == true)

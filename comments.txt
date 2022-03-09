@@ -1,1 +1,0 @@
-1. Przy konstruowaniu Singletonów raz użyłem kompozycji przy pomocy Traitów, raz po prostu dałem metody - chciałem sprawdzić obie opcje
