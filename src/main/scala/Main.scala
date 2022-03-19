@@ -36,15 +36,16 @@ def main(fileName: String, interval: Int): Unit =
   
   /*UP^: checks if there are directories for articles and outputs, if not- creates them */
   
+  def wikiEntryListFactory(nouns: List[String]): List[WikiEntry] =
+    for // check if article is on drive - if not, downloads it
+      noun <- nouns
+    yield                                                   
+      new WikiEntry(noun, link = UrlFactory.wikipedia(noun), hasArticle = IOSingleton.fetchArticle(noun))
+
   IOSingleton.readFile(fileName)
     .map(code => (code, Scraper.scrapCaptions(code).get)) // takes code from file
     .filter((code, rawCaptions) => !(rawCaptions eq None)) // checks if captrions are not None
     .map((code, rawCaptions) => (code, rawCaptions, PartsOfSpeechFinder.nouns(rawCaptions).toList)) // searches for nouns
-    .map((code, rawCaptions, nouns) => (code, rawCaptions, for // check if article is on drive - if not, downloads it
-                                                            noun <- nouns
-                                                          yield
-                                                            val newLink = UrlFactory.wikipedia(noun)
-                                                            val hasArticle = IOSingleton.fetchArticle(noun)                                                       
-                                                            new WikiEntry (noun, link = newLink, hasArticle = hasArticle)))
+    .map((code, rawCaptions, nouns) => (code, rawCaptions, wikiEntryListFactory(nouns)))
     .map((code, rawCaptions, entries) => FinalOutput(code, rawCaptions, entries)) // form output
     .map(finalOutput => IOSingleton.xmlsPipe(finalOutput)) // saves output ot XML
