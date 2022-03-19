@@ -8,7 +8,7 @@ import strings.{UrlFactory, TextFormatter}
 import temps.FinalOutput
 
 trait FileReader:
-  def readFile(filePath: String): Option[String] =
+  def readFile(filePath: String): Option[String] = // reads data from file in relative path
     try
       Some(os.read(pwd / RelPath(filePath)).stripTrailing)
     catch
@@ -22,7 +22,7 @@ trait WriterToFile:
 
 
 trait checkPresence:
-  def checkPresence(searched: String): Boolean =
+  def checkPresence(searched: String): Boolean = // checks is object is present 
     os.exists(pwd / RelPath(searched))
 
 
@@ -37,18 +37,18 @@ object IOSingleton extends FileReader, WriterToFile, checkPresence, mkDir:
 
   def fetchArticle(noun: String): Boolean =
     if
-      !checkPresence("articles" ++ "/" ++ noun ++ ".txt")
+      !checkPresence("articles" ++ "/" ++ noun ++ ".txt") // checks if article is NOT in dir
     then
-      val document = Scraper.scrapSite(UrlFactory.wikipedia(noun))
+      val document = Scraper.scrapSite(UrlFactory.wikipedia(noun)) // tries to scrap article from Wiki
       if
         document ne None 
       then 
-        writeToFile(path = "articles/" ++ noun ++ ".txt", text = document.get)
+        writeToFile(path = "articles/" ++ noun ++ ".txt", text = document.get) // saves article to file
         true
       else
-        false
+        false // returns flase, if article can not be scrapped
     else
-      true
+      true // returns true, if article is found on drive
   
   def xmlsPipe(finalOutput: FinalOutput): Unit =
     val endPath = "outputs/" ++ s"${finalOutput.code}" ++ ".xml"

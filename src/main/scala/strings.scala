@@ -1,7 +1,7 @@
-
 package strings
 
 import scala.util.matching.Regex
+import config.Config
 
 
 object UrlFactory:
@@ -30,37 +30,35 @@ trait RegexRemover:
 
 
 object TextFormatter extends RegexRemover:
-  
-  val maxLineLength = 120
   private val chevrons = Regex(">>")
 
   private def paragraphsFormatting(text: String): String =
 
-    def narrowingText(text: String, builder: StringBuilder = StringBuilder()): StringBuilder =
+    def narrowingText(text: String, builder: StringBuilder = StringBuilder()): StringBuilder = // narrows text to length in Config
       if
-        text.length < maxLineLength
+        text.length < Config.maxLineLength
       then
         builder.addOne('\n').append(text)
       else
-        var cutPoint = text.slice(0, maxLineLength).lastIndexOf(' ')
+        var cutPoint = text.slice(0, Config.maxLineLength).lastIndexOf(' ')
         if 
           cutPoint < 1
         then
-          cutPoint = maxLineLength
+          cutPoint = Config.maxLineLength
         val (alpha, beta) = text.splitAt(cutPoint)
         builder.addOne('\n').append(alpha.stripLeading)
         narrowingText(beta, builder)
     
-    def lineSplitting(text: String): Array[String] = 
+    def lineSplitting(text: String): Array[String] = // splits text into a array of shorter strings
       text.replaceAll("\n", " ")
           .replaceAll(" -", "\n- ")
           .split("\n")
 
     val result = StringBuilder()
-    lineSplitting(removeBoth(text)).map(x => narrowingText(x)).map(y => result.append(y))
-    result.toString.replace("  ", " ").stripLeading
+    lineSplitting(removeBoth(text)).map(x => narrowingText(x)).map(y => result.append(y)) // add formatted line to Builder
+    result.toString.replace("  ", " ").stripLeading // returns formatted string 
 
-  private def capitalizeSentences(text: String): String =
+  private def capitalizeSentences(text: String): String = // That is the last for-lop, I have left in code, as I found regex-FP solution overcomplicated 
     val start = text.slice(0,2)
     val result = StringBuilder().addOne(start.head.toUpper).addOne(start.last)
     for 
@@ -74,14 +72,14 @@ object TextFormatter extends RegexRemover:
         result.addOne(part.last)
     result.toString
 
-  private def bigLettersStyleFormatter(text: String): String =
-    capitalizeSentences(paragraphsFormatting(text
-        .replaceAll(">>", "-")
-        .toLowerCase()
+  private def bigLettersStyleFormatter(text: String): String = // Some captions have this style:
+    capitalizeSentences(paragraphsFormatting(text              // >> HELLO!
+        .replaceAll(">>", "-")                                 // this method changes it to:
+        .toLowerCase()                                         // -Hello!
         .replaceAll(" i ", " I ")
         .stripLeading()))
 
-  def run(text: String): String =
+  def run(text: String): String = // main method of object
     if 
       chevrons.findFirstIn(text) != None
     then
@@ -96,7 +94,7 @@ object TextFormatter extends RegexRemover:
     <plain>${ formatted }</plain>
     </captions>\n"""
   
-  def toPageXML(noun: String, link: String, rawArticle: String): String =
+  def toPageXML(noun: String, link: String, rawArticle: String): String = // fills XML file with data
     val formatted = run(rawArticle) 
     s"""\n<page noun = "${ noun }">
     <link>${ link }</link>

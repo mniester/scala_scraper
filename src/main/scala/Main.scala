@@ -20,7 +20,11 @@ def main(fileName: String, interval: Int): Unit =
     interval.toInt == 0
   then
     throw new Exception("Interval number must be other than zero")
-  Config.setInterval(interval)
+    
+    /* I know that exception are not well seen in FP, but in upper line it seems to be best option,
+    because this error is for human eyes. */
+  
+  Config.setInterval(interval) // sets interval for scraper, to avoid denial of service
   if
     !IOSingleton.checkPresence("articles")
   then
@@ -29,18 +33,18 @@ def main(fileName: String, interval: Int): Unit =
     !IOSingleton.checkPresence("outputs")
   then
     IOSingleton.mkDir("outputs")
+  
+  /*UP^: checks if there are directories for articles and outputs, if not- creates them */
+  
   IOSingleton.readFile(fileName)
-    .map(code => (code, Scraper.scrapCaptions(code).get))
-    .filter((code, rawCaptions) => !(rawCaptions eq None))
-    .map((code, rawCaptions) => (code, rawCaptions, PartsOfSpeechFinder.nouns(rawCaptions).toList))
-    .map((code, rawCaptions, nouns) => (code, 
-                                        rawCaptions, for
-                                                        noun <- nouns
-                                                      yield
-                                                        val newLink = UrlFactory.wikipedia(noun)
-                                                        val hasArticle = IOSingleton.fetchArticle(noun)                                                       
-                                                        new WikiEntry (noun, link = newLink, hasArticle = hasArticle)))
-    .map((code, rawCaptions, entries) => FinalOutput(code, rawCaptions, entries))
-    .map(finalOutput => IOSingleton.xmlsPipe(finalOutput))
-
-
+    .map(code => (code, Scraper.scrapCaptions(code).get)) // takes code from file
+    .filter((code, rawCaptions) => !(rawCaptions eq None)) // checks if captrions are not None
+    .map((code, rawCaptions) => (code, rawCaptions, PartsOfSpeechFinder.nouns(rawCaptions).toList)) // searches for nouns
+    .map((code, rawCaptions, nouns) => (code, rawCaptions, for // check if article is on drive - if not, downloads it
+                                                            noun <- nouns
+                                                          yield
+                                                            val newLink = UrlFactory.wikipedia(noun)
+                                                            val hasArticle = IOSingleton.fetchArticle(noun)                                                       
+                                                            new WikiEntry (noun, link = newLink, hasArticle = hasArticle)))
+    .map((code, rawCaptions, entries) => FinalOutput(code, rawCaptions, entries)) // form output
+    .map(finalOutput => IOSingleton.xmlsPipe(finalOutput)) // saves output ot XML
