@@ -43,6 +43,8 @@ def main(fileName: String, interval: Int): Unit =
       new WikiEntry(noun, link = UrlFactory.wikipedia(noun), hasArticle = IOSingleton.fetchArticle(noun))
 
   IOSingleton.readFile(fileName)
+    .getOrElse("")
+    .split('\n')
     .map(code => (code, Scraper.scrapCaptions(code).get)) // takes code from file
     .filter((code, rawCaptions) => !(rawCaptions eq None)) // checks if captrions are not None
     .map((code, rawCaptions) => (code, rawCaptions, PartsOfSpeechFinder.nouns(rawCaptions).toList)) // searches for nouns
