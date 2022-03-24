@@ -37,10 +37,12 @@ def main(fileName: String, interval: Int): Unit =
   /*UP^: checks if there are directories for articles and outputs, if not- creates them */
   
   def wikiEntryListFactory(nouns: List[String]): List[WikiEntry] =
-    for // check if article is on drive - if not, downloads it
+    for
       noun <- nouns
     yield                                                   
-      new WikiEntry(noun, link = UrlFactory.wikipedia(noun), hasArticle = IOSingleton.fetchArticle(noun))
+      new WikiEntry(noun = noun, 
+                    link = UrlFactory.wikipedia(noun), 
+                    hasArticle = IOSingleton.fetchArticle(noun))
 
   IOSingleton.readFile(fileName)
     .getOrElse("")
