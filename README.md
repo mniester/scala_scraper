@@ -13,8 +13,8 @@
     - run setup.sh bash file (creates python virtual environment and downloads scraper)
     - file should contain codes only separated by '\n'
 
-3 Running:
-    - as arguments, provide file containing codes and integer
+3. Running:
+    - as arguments, provide path to file containing codes and integer
     - program reuses articles - if its already in "articles" folder, it just copy it to
     output file
     - start - splits codes in files on '\n' character
@@ -23,17 +23,18 @@
     - scraping wikipedia by noun
     - forming final output
     - append data to file, named by by its youtube code
-    - results are XML files
+    - results are XML files in "outputs" directory
 
 4. Packages:
-    - files in main are separateded fun funtions of objects their contain
+    - files in main are objects, grouped by their purpose
     - "ML" stands for machine learning
-    - "temps" are classes which are used as temporary data in chains pf funtions
+    - "temps" are classes which are used as temporary data in chains pf functions
 
+5. What else can be done:
+    - Handling disambiguation pages in wikipedia (they are not standarized)
+    - third argument - output directory
+    - timestamps for wiki articles - if they expire, articles is removed and new version is downloaded
 
 This is a normal sbt project. You can compile code with `sbt compile`, run it with `sbt run`, and `sbt console` will start a Scala 3 REPL.
-
-For more information on the sbt-dotty plugin, see the
-[scala3-example-project](https://github.com/scala/scala3-example-project/blob/main/README.md).
 
 

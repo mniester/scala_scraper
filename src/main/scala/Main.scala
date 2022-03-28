@@ -15,7 +15,7 @@ import ML.PartsOfSpeechFinder
 
 
 @main 
-def main(fileName: String, interval: Int): Unit =
+def main(filePath: String, interval: Int): Unit =
   if
     interval.toInt == 0
   then
@@ -44,7 +44,7 @@ def main(fileName: String, interval: Int): Unit =
                     link = UrlFactory.wikipedia(noun), 
                     hasArticle = IOSingleton.fetchArticle(noun))
 
-  IOSingleton.readFile(fileName)
+  IOSingleton.readFile(filePath)
     .getOrElse("")
     .split('\n')
     .map(code => (code, Scraper.scrapCaptions(code).get)) // takes code from file
