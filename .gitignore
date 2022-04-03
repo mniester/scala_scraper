@@ -2,6 +2,7 @@
 .bsp
 .metals
 .vscode
+.ammonite
 articles
 outputs
 pyve
