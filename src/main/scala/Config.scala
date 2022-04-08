@@ -1,5 +1,7 @@
 package Config
 
 object CommonSetings {
-    val maxUserName = 32
+    val maxUserNameLength = 32
+    val maxProjectNameLength = 32
+
 }
