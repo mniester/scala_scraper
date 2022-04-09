@@ -7,8 +7,8 @@
         {
             "type": "scala",
             "request": "launch",
-            "name": "Tests",
-            "testClass": "TestSuite"
+            "name": "Tests Classes",
+            "testClass": "TestClasses"
         },
         {
             "type": "scala",

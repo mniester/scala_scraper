@@ -25,7 +25,7 @@ object CheckISOTimeFormat {
 
 object UserFactory {
   def apply (name: String): Option[User] =
-    if (name.length <= CommonSetings.maxUserNameLength) {
+    if (name.length <= CommonSettings.maxUserNameLength) {
       Some(User(name))
     } else {
       None
@@ -34,7 +34,7 @@ object UserFactory {
 
 object ProjectFactory {
   def apply (name: String, userName: String, startTime: String): Option[Project] =
-    if ((name.length <= CommonSetings.maxProjectNameLength) || (userName.length <= CommonSetings.maxUserNameLength) || CheckISOTimeFormat(startTime)) {
+    if ((name.length <= CommonSettings.maxProjectNameLength) && (userName.length <= CommonSettings.maxUserNameLength) && CheckISOTimeFormat(startTime)) {
       Some(Project(name, userName, startTime))
     } else {
       None
@@ -43,7 +43,7 @@ object ProjectFactory {
 
 object TaskFactory {
   def apply (start: String, project: String, time: Int,  volume: Option[Int], comment: Option[String]): Option[Task] =
-    if ((!comment.isEmpty) && (comment.head.length <= CommonSetings.maxTaskCommentLength)) {
+    if ((!comment.isEmpty) && (comment.head.length <= CommonSettings.maxTaskCommentLength)) {
       Some(Task(start, project, time,  volume, comment))
     } else {
       None
