@@ -7,6 +7,12 @@
         {
             "type": "scala",
             "request": "launch",
+            "name": "Tests",
+            "testClass": "TestSuite"
+        },
+        {
+            "type": "scala",
+            "request": "launch",
             "name": "Main Dev",
             "mainClass": "Main",
             "args": [],

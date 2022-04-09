@@ -1,6 +1,7 @@
 package Inputs
 
 import Config._
+import org.joda.time.DateTime
 
 
 
@@ -13,7 +14,13 @@ case class Task(start: String, project: String, time: Int,  volume: Option[Int],
 
 object CheckISOTimeFormat {
   def apply (string: String): Boolean =
-    ???
+    try {
+      new DateTime(string)
+      true
+    }
+    catch {
+      case _: Throwable => false
+    }
 }
 
 object UserFactory {
