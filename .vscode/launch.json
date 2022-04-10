@@ -15,7 +15,7 @@
             "request": "launch",
             "name": "Main Dev",
             "mainClass": "Main",
-            "args": [],
+            "args": ["-cp src/main/resources/app.conf"],
             "jvmOptions": [],
             "env": {}
         }
