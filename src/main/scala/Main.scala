@@ -4,5 +4,5 @@ import java.io.File
 
 object Main extends App {
   val conf = ConfigFactory.parseFile(new File(s"${os.pwd}/src/resources/app.conf"))
-  println(conf.getConfig("maindb"))
+  println(conf.getConfig("maxlen"))
 }
