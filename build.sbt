@@ -27,7 +27,11 @@ version := "1.0"
 
 libraryDependencies ++= Seq("joda-time" % "joda-time" % "2.10.14",
                             "org.scalactic" %% "scalactic" % "3.2.10",
-                            "org.scalatest" %% "scalatest" % "3.2.10" % "test")
+                            "org.scalatest" %% "scalatest" % "3.2.10" % "test",
+                            "com.typesafe.slick" %% "slick" % "3.3.3",
+                            "org.slf4j" % "slf4j-nop" % "1.6.4",
+                            "com.typesafe.slick" %% "slick-hikaricp" % "3.3.3",
+                            "com.lihaoyi" %% "os-lib" % "0.8.0")
 
 // Here, `libraryDependencies` is a set of dependencies, and by using `+=`,
 // we're adding the scala-parser-combinators dependency to the set of dependencies
