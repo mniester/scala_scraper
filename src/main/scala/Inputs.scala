@@ -1,8 +1,7 @@
 package Inputs
 
-import Config._
 import org.joda.time.DateTime
-
+import Settings.CommonSettings
 
 
 case class User(name: String)

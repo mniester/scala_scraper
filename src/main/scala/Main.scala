@@ -1,5 +1,8 @@
-import Inputs._
+import os._
+import com.typesafe.config.{Config, ConfigFactory}
+import java.io.File
 
 object Main extends App {
-  println(UserFactory("test"))
+  val conf = ConfigFactory.parseFile(new File(s"${os.pwd}/src/resources/app.conf"))
+  println(conf.getConfig("maindb"))
 }

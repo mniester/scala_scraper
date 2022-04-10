@@ -1,5 +1,5 @@
 import org.scalatest.funsuite.AnyFunSuite
-import Config._
+import Settings._
 import Inputs._
 
 
