@@ -2,8 +2,9 @@ import os._
 import com.typesafe.config.{Config, ConfigFactory}
 import java.io.File
 import slick.jdbc.SQLiteProfile.api._
-import javax.xml.crypto.Data
-import javax.sql.DataSource
+import scala.concurrent.{Await}
+
+
 
 object Main extends App {
   val configFile = ConfigFactory.parseFile(new File(s"${os.pwd}/src/resources/application.conf"))
