@@ -1,26 +1,28 @@
 package Schemas
 
 import slick.jdbc.SQLiteProfile.api._
-import Inputs._
 
 
 
-class User (tag: Tag) extends Table [(String)](tag, "USERS") {
-    def name = column[String]("NAME", O.PrimaryKey)
-    def * = (name)
+class User (tag: Tag) extends Table [(Int, String)](tag, "users") {
+    def key = column[Int]("key", O.PrimaryKey, O.AutoInc)
+    def name = column[String]("name")
+    def * = (key, name)
 }
 
-class Project (tag: Tag) extends Table [(String, String, String)] (tag, "PROJECTS") {
-  def name = column[String]("NAME", O.PrimaryKey)
+class Project (tag: Tag) extends Table [(Int, String, String, String)] (tag, "PROJECTS") {
+  def key = column[Int]("KEY", O.PrimaryKey, O.AutoInc)
+  def name = column[String]("NAME", O.Unique)
   def userName = column[String]("USER_NAME")
   def startTime = column[String]("START_TIME")
-  def * = (name, userName, startTime)
+  def * = (key, name, userName, startTime)
 }
 
-class Task (tag: Tag) extends Table [(String, String, String, Option[Int])] (tag, "PROJECTS") {
+class Task (tag: Tag) extends Table [(Int, String, String, String, Option[Int])] (tag, "tasks") {
+  def key = column[Int]("KEY", O.PrimaryKey, O.AutoInc)
   def start = column[String]("START", O.PrimaryKey)
   def project = column[String]("PROJECT")
   def time = column[String]("TIME")
   def volume = column[Option[Int]]("VOLUME", O.Default(None))
-  def * = (start, project, time, volume)
+  def * = (key, start, project, time, volume)
 }
