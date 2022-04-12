@@ -10,19 +10,19 @@ class User (tag: Tag) extends Table [(Int, String)](tag, "users") {
     def * = (key, name)
 }
 
-class Project (tag: Tag) extends Table [(Int, String, String, String)] (tag, "PROJECTS") {
-  def key = column[Int]("KEY", O.PrimaryKey, O.AutoInc)
-  def name = column[String]("NAME", O.Unique)
-  def userName = column[String]("USER_NAME")
-  def startTime = column[String]("START_TIME")
+class Project (tag: Tag) extends Table [(Int, String, String, String)] (tag, "projects") {
+  def key = column[Int]("key", O.PrimaryKey, O.AutoInc)
+  def name = column[String]("name", O.Unique)
+  def userName = column[String]("user_name")
+  def startTime = column[String]("start_time")
   def * = (key, name, userName, startTime)
 }
 
 class Task (tag: Tag) extends Table [(Int, String, String, String, Option[Int])] (tag, "tasks") {
-  def key = column[Int]("KEY", O.PrimaryKey, O.AutoInc)
-  def start = column[String]("START", O.PrimaryKey)
-  def project = column[String]("PROJECT")
-  def time = column[String]("TIME")
-  def volume = column[Option[Int]]("VOLUME", O.Default(None))
+  def key = column[Int]("key", O.PrimaryKey, O.AutoInc)
+  def start = column[String]("start")
+  def project = column[String]("project")
+  def time = column[String]("time")
+  def volume = column[Option[Int]]("volume", O.Default(None))
   def * = (key, start, project, time, volume)
 }
