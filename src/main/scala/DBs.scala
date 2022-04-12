@@ -1,5 +1,6 @@
 package DBs
 
+import os.pwd
 import com.typesafe.config.{Config, ConfigFactory}
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -10,10 +11,10 @@ import Schemas._
 object SQLite {
   val configFile = ConfigFactory.parseFile(new File(s"${os.pwd}/src/resources/application.conf"))
   val api = Database.forConfig(path = "", config = configFile.getConfig("db.sqlite3"))
-  val users = TableQuery[User]
-  val projects = TableQuery[Project]
-  val tasks = TableQuery[Task]
-  val createDB = DBIO.seq((users.schema ++ projects.schema ++ tasks.schema).createIfNotExists)
+  lazy val users = TableQuery[User]
+  lazy val projects = TableQuery[Project]
+  lazy val tasks = TableQuery[Task]
   def setup (): Unit =
-    Await.result(this.api.run(createDB), Duration(20, "seconds"))
+    {val createDB = DBIO.seq((users.schema ++ projects.schema ++ tasks.schema).createIfNotExists)
+    Await.result(this.api.run(createDB), Duration(20, "seconds"))}
 }
