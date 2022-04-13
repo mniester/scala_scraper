@@ -6,6 +6,6 @@ import Inputs._
 object Main extends App {
   val db = SQLite
   db.setup()
-  val x = User("f").toInputTuple
-  db.cursor.run(db.users += x)
+  val x = UserInput("h").toInputTuple
+  //db.cursor.run(db.users += x)
 }

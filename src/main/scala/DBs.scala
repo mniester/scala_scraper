@@ -7,8 +7,7 @@ import scala.concurrent.duration.Duration
 import java.io.File
 import slick.jdbc.SQLiteProfile.api._
 import Schemas._
-import Inputs.Input
-
+import Inputs._
 
 abstract class DB {
   val configFile: Config
@@ -16,15 +15,22 @@ abstract class DB {
   def setup (): Unit
 }
 
-
 object SQLite extends DB { 
   val configFile = ConfigFactory.parseFile(new File(s"${os.pwd}/src/resources/application.conf"))
   val cursor = Database.forConfig(path = "", config = configFile.getConfig("db.sqlite3"))
-  lazy val users = TableQuery[User]
-  lazy val projects = TableQuery[Project]
-  lazy val tasks = TableQuery[Task]
-  
+  private lazy val users = TableQuery[UserSchema]
+  private lazy val projects = TableQuery[ProjectSchema]
+  private lazy val tasks = TableQuery[TaskSchema]
   def setup (): Unit =
     {val createDB = DBIO.seq((users.schema ++ projects.schema ++ tasks.schema).createIfNotExists)
     Await.result(this.cursor.run(createDB), Duration(20, "seconds"))}
+  
+  def addUser (user: UserInput): Unit =
+    users += user.toInputTuple
+  
+  def addProject (project: ProjectInput): Unit =
+    projects += project.toInputTuple
+  
+  def addTask (task: TaskInput): Unit =
+    tasks += task.toInputTuple
 }
