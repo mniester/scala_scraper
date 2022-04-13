@@ -10,12 +10,14 @@ import Schemas._
 import Inputs.Input
 
 
-abstract class DB (dbType: String) {
+abstract class DB {
   val configFile: Config
+  val cursor: Any
+  def setup (): Unit
 }
 
 
-object SQLite extends DB ("db.sqlite3") { 
+object SQLite extends DB { 
   val configFile = ConfigFactory.parseFile(new File(s"${os.pwd}/src/resources/application.conf"))
   val cursor = Database.forConfig(path = "", config = configFile.getConfig("db.sqlite3"))
   lazy val users = TableQuery[User]
