@@ -7,5 +7,5 @@ object Main extends App {
   val db = SQLite
   db.setup()
   val x = UserInput("h").toInputTuple
-  //db.cursor.run(db.users += x)
+  db.addUser(UserInput("h"))
 }

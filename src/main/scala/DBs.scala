@@ -26,11 +26,11 @@ object SQLite extends DB {
     Await.result(this.cursor.run(createDB), Duration(20, "seconds"))}
   
   def addUser (user: UserInput): Unit =
-    users += user.toInputTuple
+    cursor.run(users += user.toInputTuple)
   
   def addProject (project: ProjectInput): Unit =
-    projects += project.toInputTuple
+    cursor.run(projects += project.toInputTuple)
   
   def addTask (task: TaskInput): Unit =
-    tasks += task.toInputTuple
+    cursor.run(tasks += task.toInputTuple)
 }
