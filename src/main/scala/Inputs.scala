@@ -4,11 +4,24 @@ import org.joda.time.DateTime
 import Settings.CommonSettings
 
 
-case class User(name: String)
+abstract class Input {
+  def toInputTuple (): Product
+}
 
-case class Project(name: String, userName: String, startTime: String)
+case class User(name: String) extends Input {
+  def toInputTuple(): Tuple2[Int, String] =
+    (-1, name)
+}
 
-case class Task(start: String, project: String, time: Int,  volume: Option[Int], comment: Option[String])
+case class Project(name: String, userName: String, startTime: String) extends Input {
+  def toInputTuple(): Tuple4[Int, String, String, String] =
+    (-1, name, userName, startTime)
+}
+
+case class Task(start: String, project: String, time: Int,  volume: Option[Int], comment: Option[String]) extends Input {
+  def toInputTuple(): Tuple6[Int, String, String, Int, Option[Int], Option[String]] = 
+    (-1, start, project, time, volume, comment)
+}
 
 
 object CheckISOTimeFormat {
