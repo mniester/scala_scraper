@@ -1,11 +1,14 @@
 
 package Queries
 
-case class UserQuery(name: String)
 
-case class ProjectQuery (name: String)
+class MyQuery
 
-case class FullProjectQuery(name: String)
+case class UserQuery(name: String) extends MyQuery
 
-case class TaskQuery(name: String)
+case class ProjectQuery (name: String) extends MyQuery
+
+case class FullProjectQuery(name: String) extends MyQuery
+
+case class TaskQuery(name: String) extends MyQuery
 
