@@ -6,8 +6,12 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import java.io.File
 import slick.jdbc.SQLiteProfile.api._
+
 import Schemas._
-import Inputs._
+import Models._
+import Queries._ 
+
+
 
 abstract class DB {
   val configFile: Config
@@ -15,22 +19,29 @@ abstract class DB {
   def setup (): Unit
 }
 
-object SQLite extends DB { 
+object SQLite extends DB {
+  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
   val configFile = ConfigFactory.parseFile(new File(s"${os.pwd}/src/resources/application.conf"))
   val cursor = Database.forConfig(path = "", config = configFile.getConfig("db.sqlite3"))
-  private lazy val users = TableQuery[UserSchema]
+  lazy val users = TableQuery[UserSchema]
   private lazy val projects = TableQuery[ProjectSchema]
   private lazy val tasks = TableQuery[TaskSchema]
   def setup (): Unit =
     {val createDB = DBIO.seq((users.schema ++ projects.schema ++ tasks.schema).createIfNotExists)
     Await.result(this.cursor.run(createDB), Duration(20, "seconds"))}
   
-  def addUser (user: UserInput): Unit =
+  def addUser (user: UserModel): Unit =
     cursor.run(users += user.toInputTuple)
   
-  def addProject (project: ProjectInput): Unit =
+  def addProject (project: ProjectModel): Unit =
     cursor.run(projects += project.toInputTuple)
   
-  def addTask (task: TaskInput): Unit =
+  def addTask (task: TaskModel): Unit =
     cursor.run(tasks += task.toInputTuple)
+    
+  def getUser(query: UserQuery) = {
+    val action = cursor.run(users.filter(_.name === query.name).result)
+    val output = Await.result(action, Duration(10, "seconds"))
+    output
+  }
 }

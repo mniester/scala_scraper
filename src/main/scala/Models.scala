@@ -1,26 +1,26 @@
-package Inputs
+package  Models
 
 import org.joda.time.DateTime
 import Settings.CommonSettings
 
 
-abstract class Input {
+abstract class Model {
   def toInputTuple (): Product
 }
 
-case class UserInput(name: String) extends Input {
+case class UserModel(name: String) extends  Model {
   def toInputTuple(): Tuple2[Int, String] =
     (-1, name)
 }
 
-case class ProjectInput(name: String, userName: String, startTime: String) extends Input {
+case class ProjectModel(name: String, userName: String, startTime: String) extends  Model {
   def toInputTuple(): Tuple4[Int, String, String, String] =
     (-1, name, userName, startTime)
 }
 
-case class TaskInput(start: String, project: String, time: Int,  volume: Option[Int], comment: Option[String]) extends Input {
-  def toInputTuple(): Tuple6[Int, String, String, Int, Option[Int], Option[String]] = 
-    (-1, start, project, time, volume, comment)
+case class TaskModel(name: String, start: String, project: String, time: Int,  volume: Option[Int], comment: Option[String]) extends  Model {
+  def toInputTuple(): Tuple7[Int, String, String, String, Int, Option[Int], Option[String]] = 
+    (-1, name, start, project, time, volume, comment)
 }
 
 
@@ -36,27 +36,27 @@ object CheckISOTimeFormat {
 }
 
 object UserFactory {
-  def apply (name: String): Option[UserInput] =
+  def apply (name: String): Option[UserModel] =
     if (name.length <= CommonSettings.maxUserNameLength) {
-      Some(UserInput(name))
+      Some(UserModel(name))
     } else {
       None
     }
 }
 
 object ProjectFactory {
-  def apply (name: String, userName: String, startTime: String): Option[ProjectInput] =
+  def apply (name: String, userName: String, startTime: String): Option[ProjectModel] =
     if ((name.length <= CommonSettings.maxProjectNameLength) && (userName.length <= CommonSettings.maxUserNameLength) && CheckISOTimeFormat(startTime)) {
-      Some(ProjectInput(name, userName, startTime))
+      Some(ProjectModel(name, userName, startTime))
     } else {
       None
     }
 }
 
 object TaskFactory {
-  def apply (start: String, project: String, time: Int, volume: Option[Int], comment: Option[String]): Option[TaskInput] =
+  def apply (name: String, start: String, project: String, time: Int, volume: Option[Int], comment: Option[String]): Option[TaskModel] =
     if ((!comment.isEmpty) && (comment.head.length <= CommonSettings.maxTaskCommentLength)) {
-      Some(TaskInput(start, project, time,  volume, comment))
+      Some(TaskModel(name,start, project, time,  volume, comment))
     } else {
       None
     }

@@ -16,6 +16,8 @@ scalaVersion := "2.13.8"
 name := "Rest API"
 organization := "misza"
 version := "1.0"
+val AkkaVersion = "2.6.8"
+val AkkaHttpVersion = "10.2.9"
 
 // Note, it's not required for you to define these three settings. These are
 // mostly only necessary if you intend to publish your library's binaries on a
@@ -32,7 +34,10 @@ libraryDependencies ++= Seq("joda-time" % "joda-time" % "2.10.14",
                             "com.typesafe.slick" %% "slick" % "3.3.3",
                             "org.slf4j" % "slf4j-nop" % "1.6.4",
                             "com.typesafe.slick" %% "slick-hikaricp" % "3.3.3",
-                            "com.lihaoyi" %% "os-lib" % "0.8.0")
+                            "com.lihaoyi" %% "os-lib" % "0.8.0",
+                            "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
+                            "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
+                            "com.typesafe.akka" %% "akka-http" % AkkaHttpVersion)
 
 // Here, `libraryDependencies` is a set of dependencies, and by using `+=`,
 // we're adding the scala-parser-combinators dependency to the set of dependencies

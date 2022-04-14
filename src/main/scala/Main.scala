@@ -1,11 +1,15 @@
 import DBs.SQLite
 import slick.jdbc.SQLiteProfile.api._
-import Inputs._
+import Models._
+import Queries._
+import scala.concurrent.duration.Duration
+import scala.concurrent.Await
 
 
 object Main extends App {
+  //implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
   val db = SQLite
   db.setup()
-  val x = UserInput("h").toInputTuple
-  db.addUser(UserInput("h"))
+  val y = db.getUser(UserQuery("h"))
+  println(y)
 }
