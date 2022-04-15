@@ -10,6 +10,6 @@ object Main extends App {
   //implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
   val db = SQLite
   db.setup()
-  val y = db.getUser(UserQuery("h"))
+  val y = db.getUserByName(UserQuery("h"))
   println(y)
 }

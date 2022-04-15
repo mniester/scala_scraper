@@ -39,21 +39,21 @@ object SQLite extends DB {
   def addTask (task: TaskModel): Unit =
     cursor.run(tasks += task.toInputTuple)
 
-  // TODO - egneralize gets
+  // TODO (FAILURE) generalize gets
 
-  def getUser(query: UserQuery) = {
+  def getUserByName(query: UserQuery) = {
     val action = cursor.run(users.filter(_.name === query.name).result)
-    Await.result(action, Duration(10, "seconds"))
+    Await.result(action, Duration(10, "seconds")).map(x => UserModel(x._1, x._2))
   }
 
-  def getProject(query: ProjectQuery) = {
+  def getProjectByName(query: ProjectQuery) = {
     val action = cursor.run(projects.filter(_.name === query.name).result)
-    Await.result(action, Duration(10, "seconds"))
+    Await.result(action, Duration(10, "seconds")).map(x => ProjectModel(x._1, x._2, x._3, x._4))
   }
 
-   def getTask(query: TaskQuery) = {
+   def getTaskByName(query: TaskQuery) = {
     val action = cursor.run(tasks.filter(_.name === query.name).result)
-    Await.result(action, Duration(10, "seconds"))
+    Await.result(action, Duration(10, "seconds")).map(x => TaskModel(x._1, x._2, x._3, x._4, x._5, x._6, x._7))
   }
 
 }
