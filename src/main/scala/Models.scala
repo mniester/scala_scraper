@@ -37,7 +37,7 @@ object CheckISOTimeFormat {
 
 object UserFactory {
   def apply (key: Int = -1, name: String): Option[UserModel] = // this fake key is used only in new inputs, because schemas demand any. 
-    if (name.length <= CommonSettings.maxUserNameLength) {
+    if ((name.length <= CommonSettings.maxUserNameLength) && (name.length >= CommonSettings.minUserNameLength)) {
       Some(UserModel(key, name))
     } else {
       None

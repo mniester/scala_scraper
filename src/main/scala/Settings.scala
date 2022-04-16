@@ -8,9 +8,16 @@ import os._
 
 object CommonSettings {
   val source: Config = ConfigFactory.parseFile(new File(s"${os.pwd}/src/resources/application.conf"))
-  val maxUserNameLength = source.getConfig("maxlen").getInt("maxUserNameLength")
-  val maxProjectNameLength = source.getConfig("maxlen").getInt("maxProjectNameLength")
-  val maxTaskCommentLength = source.getConfig("maxlen").getInt("maxTaskCommentLength")
+  
+  val minUserNameLength = source.getConfig("length").getInt("minUserNameLength")
+  val maxUserNameLength = source.getConfig("length").getInt("maxUserNameLength")
+  
+  val minProjectNameLength = source.getConfig("length").getInt("minProjectNameLength")
+  val maxProjectNameLength = source.getConfig("length").getInt("maxProjectNameLength")
+  
+  val maxTaskCommentLength = source.getConfig("length").getInt("maxTaskCommentLength")
+  val minTaskCommentLength = source.getConfig("length").getInt("minTaskCommentLength")
+  
   val JWTKey = source.getConfig("secrets").getString("JWTKey")
   val dbWaitingDuration = Duration(source.getConfig("wait").getInt("db.quantity"), source.getConfig("wait").getString("db.unit"))
 }

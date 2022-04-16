@@ -5,7 +5,7 @@ import Strings._
 import DBs.SQLite
 import Queries.UserQueryByName
 
-class TestClasses extends AnyFunSuite {
+class UnitTests extends AnyFunSuite {
   val db = SQLite
   db.setup()
   test("test ScalaTest") {assert ((true == true) && (false ==  false))}
@@ -25,6 +25,6 @@ class TestClasses extends AnyFunSuite {
                                                         comment = Option("abc" * CommonSettings.maxTaskCommentLength)) == None)}
   
   test("DB - add, get and remove user") {val user = UserFactory(name = "Test").get; db.addUser(user);
-                                        val getResult = db.getUserByName(UserQueryByName("Test")).head; 
-                                        assert (user.name == getResult.name)}
+                                        val getResult = db.getUserByName(UserQueryByName("Test")).last; 
+                                        assert (user == getResult)}
 }
