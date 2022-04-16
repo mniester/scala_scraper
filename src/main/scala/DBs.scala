@@ -3,10 +3,10 @@ package DBs
 import os.pwd
 import com.typesafe.config.{Config, ConfigFactory}
 import scala.concurrent.Await
-import scala.concurrent.duration.Duration
 import java.io.File
 import slick.jdbc.SQLiteProfile.api._
 
+import Settings.CommonSettings
 import Schemas._
 import Models._
 import Queries._ 
@@ -29,7 +29,7 @@ object SQLite extends DB {
   private lazy val tasks = TableQuery[TaskSchema]
   def setup (): Unit =
     {val createDB = DBIO.seq((users.schema ++ projects.schema ++ tasks.schema).createIfNotExists)
-    Await.result(this.cursor.run(createDB), Duration(20, "seconds"))}
+    Await.result(this.cursor.run(createDB), CommonSettings.dbWaitingDuration)}
   
   def addUser (user: UserModel): Unit =
     cursor.run(users += user.toInputTuple)
@@ -44,17 +44,17 @@ object SQLite extends DB {
 
   def getUserByName(query: UserQuery) = {
     val action = cursor.run(users.filter(_.name === query.name).result)
-    Await.result(action, Duration(10, "seconds")).map(x => UserModel(x._1, x._2))
+    Await.result(action, CommonSettings.dbWaitingDuration).map(x => UserModel(x._1, x._2))
   }
 
   def getProjectByName(query: ProjectQuery) = {
     val action = cursor.run(projects.filter(_.name === query.name).result)
-    Await.result(action, Duration(10, "seconds")).map(x => ProjectModel(x._1, x._2, x._3, x._4))
+    Await.result(action, CommonSettings.dbWaitingDuration).map(x => ProjectModel(x._1, x._2, x._3, x._4))
   }
 
    def getTaskByName(query: TaskQuery) = {
     val action = cursor.run(tasks.filter(_.name === query.name).result)
-    Await.result(action, Duration(10, "seconds")).map(x => TaskModel(x._1, x._2, x._3, x._4, x._5, x._6, x._7))
+    Await.result(action, CommonSettings.dbWaitingDuration).map(x => TaskModel(x._1, x._2, x._3, x._4, x._5, x._6, x._7))
   }
 
   def convertClockToString(clock: Clock): String = {
