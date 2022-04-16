@@ -7,6 +7,4 @@ object Dev extends App {
   val db = SQLite
   db.setup()
   db.purge()
-  db.addUser(UserFactory(name = "a").get)
-  db.addUser(UserFactory(name = "a").get)
 }
