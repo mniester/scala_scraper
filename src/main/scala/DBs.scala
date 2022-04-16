@@ -10,6 +10,7 @@ import slick.jdbc.SQLiteProfile.api._
 import Schemas._
 import Models._
 import Queries._ 
+import java.time.Clock
 
 
 
@@ -54,6 +55,10 @@ object SQLite extends DB {
    def getTaskByName(query: TaskQuery) = {
     val action = cursor.run(tasks.filter(_.name === query.name).result)
     Await.result(action, Duration(10, "seconds")).map(x => TaskModel(x._1, x._2, x._3, x._4, x._5, x._6, x._7))
+  }
+
+  def convertClockToString(clock: Clock): String = {
+    clock.instant().toString()
   }
 
 }

@@ -13,8 +13,17 @@
         {
             "type": "scala",
             "request": "launch",
-            "name": "Main Dev",
+            "name": "Main",
             "mainClass": "Main",
+            "args": ["-cp src/main/resources/app.conf"],
+            "jvmOptions": [],
+            "env": {}
+        },
+        {
+            "type": "scala",
+            "request": "launch",
+            "name": "Dev",
+            "mainClass": "Dev",
             "args": ["-cp src/main/resources/app.conf"],
             "jvmOptions": [],
             "env": {}
