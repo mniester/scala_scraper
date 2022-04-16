@@ -1,7 +1,6 @@
 
 package Queries
 
-
 class MyQuery
 
 case class UserQuery(name: String) extends MyQuery

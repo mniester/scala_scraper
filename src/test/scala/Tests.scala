@@ -2,10 +2,11 @@ import org.scalatest.funsuite.AnyFunSuite
 import Settings._
 import Models._
 import Strings._
-
-
+import DBs.SQLite
 
 class TestClasses extends AnyFunSuite {
+  val db = SQLite
+  db.setup()
   test("test ScalaTest") {assert ((true == true) && (false ==  false))}
 
   test("CheckISOTimeFormat - ok") {assert (CheckISOTimeFormat("2222-02-02T22:22:22"))}
@@ -21,4 +22,5 @@ class TestClasses extends AnyFunSuite {
                                                         project = "project", time = 1,
                                                         volume = Option(1), 
                                                         comment = Option("abc" * CommonSettings.maxTaskCommentLength)) == None)}
+  test("DB - add, get and remove user") {val user = UserFactory(name = "Test")}
 }
