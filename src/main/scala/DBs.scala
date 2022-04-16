@@ -24,11 +24,11 @@ abstract class DB {
   
   def setup (): Unit =
     {val createDB = DBIO.seq((users.schema ++ projects.schema ++ tasks.schema).createIfNotExists)
-    Await.result(this.cursor.run(createDB), CommonSettings.dbWaitingDuration)}
+    Await.result(cursor.run(createDB), CommonSettings.dbWaitingDuration)}
   
   def addUser (user: UserModel): Unit =
     cursor.run(users += user.toInputTuple)
-    
+     
   def addProject (project: ProjectModel): Unit =
     cursor.run(projects += project.toInputTuple)
   
@@ -37,9 +37,14 @@ abstract class DB {
 
   // TODO (FAILURE) generalize gets
 
-  def getUserByName(query: UserQuery) = {
+  def getUserByName(query: UserQueryByName): Seq[UserModel] = {
     val action = cursor.run(users.filter(_.name === query.name).result)
     Await.result(action, CommonSettings.dbWaitingDuration).map(x => UserModel(x._1, x._2))
+  }
+
+  def delUserByName(query: UserQueryByName) = {
+    val action = cursor.run(users.filter(_.name === query.name).delete)
+    Await.result(action, CommonSettings.dbWaitingDuration)
   }
 
   def getProjectByName(query: ProjectQuery) = {

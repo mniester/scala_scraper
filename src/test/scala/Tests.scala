@@ -3,6 +3,7 @@ import Settings._
 import Models._
 import Strings._
 import DBs.SQLite
+import Queries.UserQueryByName
 
 class TestClasses extends AnyFunSuite {
   val db = SQLite
@@ -22,5 +23,8 @@ class TestClasses extends AnyFunSuite {
                                                         project = "project", time = 1,
                                                         volume = Option(1), 
                                                         comment = Option("abc" * CommonSettings.maxTaskCommentLength)) == None)}
-  test("DB - add, get and remove user") {val user = UserFactory(name = "Test")}
+  
+  test("DB - add, get and remove user") {val user = UserFactory(name = "Test").get; db.addUser(user);
+                                        val getResult = db.getUserByName(UserQueryByName("Test")).head; 
+                                        assert (user.name == getResult.name)}
 }
