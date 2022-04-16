@@ -1,6 +1,6 @@
-1) Move duration times to options [x]
+1) Move waiting duration to Settings [x]
 2) prepare JS test page
-3) Add checking of DB data methods
+3) Add checking to DB data methods
 4) Add routes
 5) add final DB CRUD methods
 6) JWT coding [x]
