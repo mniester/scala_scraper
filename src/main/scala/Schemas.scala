@@ -13,20 +13,21 @@ class UserSchema (tag: Tag) extends Table [(Int, String)](tag, "users") {
 class ProjectSchema (tag: Tag) extends Table [(Int, String, String, String, String)] (tag, "projects") {
   def key = column[Int]("key", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name", O.Unique)
-  def userName = column[String]("user_name")
+  def author = column[String]("author")
   def startTime = column[String]("start_time")
   def deleteTime = column[String] ("delete_time", O.Default(""))
-  def * = (key, name, userName, startTime, deleteTime)
+  def * = (key, name, author, startTime, deleteTime)
 }
 
-class TaskSchema (tag: Tag) extends Table [(Int, String, String, String, Int, Int, String, String)] (tag, "tasks") {
+class TaskSchema (tag: Tag) extends Table [(Int, String, String, String, String, Int, Int, String, String)] (tag, "tasks") {
   def key = column[Int]("key", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
-  def start = column[String]("start")
+  def author = column[String]("author")
+  def startTime = column[String]("start_time")
   def project = column[String]("project")
   def time = column[Int]("time")
   def volume = column[Int] ("volume", O.Default(-1))
   def comment = column[String] ("comment", O.Default(null))
-  def deleteTime = column[String] ("delete_time", O.Default(""))
-  def * = (key, name, start, project, time, volume, comment, deleteTime)
+  def deleteTime = column[String] ("delete_time", O.Default(null))
+  def * = (key, name, author, startTime, project, time, volume, comment, deleteTime)
 }

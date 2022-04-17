@@ -66,12 +66,12 @@ abstract class DB {
     Await.result(removeTasks, CommonSettings.dbWaitingDuration)
   }
 
-   def getTaskByName(query: TaskQueryByName) = {
+  def getTaskByName(query: TaskQueryByName) = {
     val action = cursor.run(tasks.filter(_.name === query.name).filter(_.deleteTime.length === 0).result)
-    Await.result(action, CommonSettings.dbWaitingDuration).map(x => TaskModel(x._1, x._2, x._3, x._4, x._5, x._6, x._7, x._8))
+    Await.result(action, CommonSettings.dbWaitingDuration).map(x => TaskModel(x._1, x._2, x._3, x._4, x._5, x._6, x._7, x._8, x._9))
   }
 
-   def delTaskByName(query: TaskQueryByName): Unit = {
+  def delTaskByName(query: TaskQueryByName): Unit = {
     Await.result(cursor.run(tasks.filter(_.name === query.name).map(_.deleteTime).update("aaa")), CommonSettings.dbWaitingDuration)
   }
 }

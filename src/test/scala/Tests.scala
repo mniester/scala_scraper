@@ -18,10 +18,11 @@ class UnitTests extends AnyFunSuite {
   test("CheckISOTimeFormat - fail; string is not a datetime") {assert (!CheckISOTimeFormat("abcd"))}
 
   test("UserFactory - fail; name too long") {assert (UserFactory(name = "ab" * CommonSettings.maxUserNameLength) == None)}
-  test("ProjectFactory - fail; name too long") {assert (ProjectFactory(name = "abc" * CommonSettings.maxProjectNameLength, userName = "abc", startTime = "2000-01-01T00:01:01") == None)}
-  test("ProjectFactory - fail; user name too long") {assert (ProjectFactory(name = "abc", userName = "abc" * CommonSettings.maxProjectNameLength, startTime = "2000-01-01T00:01:01") == None)}
-  test("ProjectFactory - fail; datetime not ok") {assert (ProjectFactory(name = "abc" * CommonSettings.maxProjectNameLength, userName = "abc", startTime = "2000-13-01T00:01:01") == None)}
+  test("ProjectFactory - fail; name too long") {assert (ProjectFactory(name = "abc" * CommonSettings.maxProjectNameLength, author = "abc", startTime = "2000-01-01T00:01:01") == None)}
+  test("ProjectFactory - fail; user name too long") {assert (ProjectFactory(name = "abc", author = "abc" * CommonSettings.maxProjectNameLength, startTime = "2000-01-01T00:01:01") == None)}
+  test("ProjectFactory - fail; datetime not ok") {assert (ProjectFactory(name = "abc" * CommonSettings.maxProjectNameLength, author = "abc", startTime = "2000-13-01T00:01:01") == None)}
   test("TaskFactory - fail; comment too long") {assert (TaskFactory(name = "Test",
+                                                        author = "Test",
                                                         start = "2000-01-01T00:01:01", 
                                                         project = "project", time = 1,
                                                         volume = 1, 
@@ -38,7 +39,7 @@ class UnitTests extends AnyFunSuite {
                                         assert (dbResult2.length == 0);}
   
   test("DB - add, get and remove project") {db.purge;
-                                        val project = ProjectFactory(key = 1, name = "Test", userName = "Test", startTime = "2000-01-01T00:01:01").get;
+                                        val project = ProjectFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01").get;
                                         val projectQuery = ProjectQueryByName("Test")
                                         db.addProject(project);
                                         val dbResult = db.getProjectByName(projectQuery).last; 
@@ -48,7 +49,7 @@ class UnitTests extends AnyFunSuite {
                                         assert (dbResult2.length == 0);}
   
   test("DB - add, get and remove task") {db.purge;
-                                        val task = TaskFactory(key = 1, name = "Test", start = "2000-01-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
+                                        val task = TaskFactory(key = 1, name = "Test", author = "Test", start = "2000-01-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
                                         val taskQuery = TaskQueryByName("Test")
                                         db.addTask(task);
                                         val dbResult = db.getTaskByName(taskQuery).last; 
@@ -59,8 +60,8 @@ class UnitTests extends AnyFunSuite {
                                       }
   
   test("DB - remove Project with Tasks") {db.purge;
-                                        val task = TaskFactory(key = 1, name = "Test", start = "2000-01-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
-                                        val project = ProjectFactory(key = 1, name = "Test", userName = "Test", startTime = "2000-01-01T00:01:01").get;
+                                        val task = TaskFactory(key = 1, name = "Test", author = "Test", start = "2000-01-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
+                                        val project = ProjectFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01").get;
                                         val taskQuery = TaskQueryByName("Test")
                                         val projectQuery = ProjectQueryByName("Test")
                                         db.addTask(task);
