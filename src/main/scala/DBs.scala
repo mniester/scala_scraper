@@ -55,12 +55,12 @@ abstract class DB {
   }
 
   def getProjectByName(query: ProjectQueryByName) = {
-    val action = cursor.run(projects.filter(_.name === query.name).result)
-    Await.result(action, CommonSettings.dbWaitingDuration).map(x => ProjectModel(x._1, x._2, x._3, x._4))
+    val action = cursor.run(projects.filter(_.name === query.name).filter(_.deleteTime.length === 0).result)
+    Await.result(action, CommonSettings.dbWaitingDuration).map(x => ProjectModel(x._1, x._2, x._3, x._4, x._5))
   }
 
   def delProjectByName(query: ProjectQueryByName): Unit = {
-    cursor.run(projects.filter(_.name === query.name).delete)
+    cursor.run(projects.filter(_.name === query.name).map(_.deleteTime).update("aaa"))
   }
 
    def getTaskByName(query: TaskQueryByName) = {
@@ -69,8 +69,7 @@ abstract class DB {
   }
 
    def delTaskByName(query: TaskQueryByName): Unit = {
-    //cursor.run(tasks.filter(_.name === query.name).delete)
-    cursor.run(tasks.filter(_.name === query.name).map(_.deleteTime).update("****** ***"))
+    cursor.run(tasks.filter(_.name === query.name).map(_.deleteTime).update("aaa"))
   }
 }
 
