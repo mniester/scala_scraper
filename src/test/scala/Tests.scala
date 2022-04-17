@@ -50,5 +50,6 @@ class UnitTests extends AnyFunSuite {
                                         assert (task == dbResult);
                                         db.delTaskByName(taskQuery);
                                         var dbResult2 = db.getTaskByName(taskQuery);
-                                        assert (dbResult2.length == 0);}
+                                        assert (dbResult2.length == 0);
+                                      }
 }                                      
