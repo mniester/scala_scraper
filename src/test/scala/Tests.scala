@@ -21,8 +21,8 @@ class UnitTests extends AnyFunSuite {
   test("TaskFactory - fail; comment too long") {assert (TaskFactory(name = "Test",
                                                         start = "2000-01-01T00:01:01", 
                                                         project = "project", time = 1,
-                                                        volume = Option(1), 
-                                                        comment = Option("abc" * CommonSettings.maxTaskCommentLength)) == None)}
+                                                        volume = 1, 
+                                                        comment = "abc" * CommonSettings.maxTaskCommentLength) == None)}
   
   test("DB - add, get and remove user") {db.purge;
                                         val user = UserFactory(key = 1, name = "Test").get;
@@ -43,7 +43,7 @@ class UnitTests extends AnyFunSuite {
                                         var dbResult2 = db.getProjectByName(projectQuery);
                                         assert (dbResult2.length == 0);}
   test("DB - add, get and remove task") {db.purge;
-                                        val task = TaskFactory(key = 1, name = "Test", start = "2000-01-01T00:01:01", project = "abc", time = 1, volume = Option(1), comment = Option("abc")).get;
+                                        val task = TaskFactory(key = 1, name = "Test", start = "2000-01-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
                                         val taskQuery = TaskQueryByName("Test")
                                         db.addTask(task);
                                         val dbResult = db.getTaskByName(taskQuery).last; 

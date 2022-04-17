@@ -18,13 +18,13 @@ class ProjectSchema (tag: Tag) extends Table [(Int, String, String, String)] (ta
   def * = (key, name, userName, startTime)
 }
 
-class TaskSchema (tag: Tag) extends Table [(Int, String, String, String, Int, Option[Int], Option[String])] (tag, "tasks") {
+class TaskSchema (tag: Tag) extends Table [(Int, String, String, String, Int, Int, String)] (tag, "tasks") {
   def key = column[Int]("key", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
   def start = column[String]("start")
   def project = column[String]("project")
   def time = column[Int]("time")
-  def volume = column[Option[Int]]("volume", O.Default(None))
-  def comment = column[Option[String]]("comment")
+  def volume = column[Int] ("volume", O.Default(-1))
+  def comment = column[String] ("comment", O.Default(null))
   def * = (key, name, start, project, time, volume, comment)
 }
