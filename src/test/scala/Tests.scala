@@ -58,7 +58,7 @@ class UnitTests extends AnyFunSuite {
                                         assert (dbResult2.length == 0);
                                       }
   
-  test("DB - remove Project with Tasks") {db.purge; // WARNING - NOT ALWAYS WORKING
+  test("DB - remove Project with Tasks") {db.purge;
                                         val task = TaskFactory(key = 1, name = "Test", start = "2000-01-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
                                         val project = ProjectFactory(key = 1, name = "Test", userName = "Test", startTime = "2000-01-01T00:01:01").get;
                                         val taskQuery = TaskQueryByName("Test")

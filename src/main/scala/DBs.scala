@@ -35,13 +35,13 @@ abstract class DB {
     Await.result(cursor.run(createDB), CommonSettings.dbWaitingDuration)}
   
   def addUser (user: UserModel): Unit =
-    cursor.run(users += user.toInputTuple)
+    Await.result(cursor.run(users += user.toInputTuple), CommonSettings.dbWaitingDuration) 
      
   def addProject (project: ProjectModel): Unit =
-    cursor.run(projects += project.toInputTuple)
+    Await.result(cursor.run(projects += project.toInputTuple), CommonSettings.dbWaitingDuration)
   
   def addTask (task: TaskModel): Unit =
-    cursor.run(tasks += task.toInputTuple)
+    Await.result(cursor.run(tasks += task.toInputTuple), CommonSettings.dbWaitingDuration)
 
   // TODO (FAILURE) generalize gets
 
@@ -51,7 +51,7 @@ abstract class DB {
   }
 
   def delUserByName(query: UserQueryByName): Unit = {
-    cursor.run(users.filter(_.name === query.name).delete)
+    Await.result(cursor.run(users.filter(_.name === query.name).delete), CommonSettings.dbWaitingDuration)
   }
 
   def getProjectByName(query: ProjectQueryByName) = {
@@ -72,7 +72,7 @@ abstract class DB {
   }
 
    def delTaskByName(query: TaskQueryByName): Unit = {
-    cursor.run(tasks.filter(_.name === query.name).map(_.deleteTime).update("aaa"))
+    Await.result(cursor.run(tasks.filter(_.name === query.name).map(_.deleteTime).update("aaa")), CommonSettings.dbWaitingDuration)
   }
 }
 
