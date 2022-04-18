@@ -15,6 +15,6 @@ package object Pencilcase { // I use pencilcase file for small snippets, which d
   def stringUTCNow (): String =
     Clock.systemUTC().instant().toString()
   
-  def stringZoneNow (): String =
+  def stringTimeZonedNow (): String =
     Clock.systemDefaultZone().instant.toString()
 }

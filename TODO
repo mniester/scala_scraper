@@ -5,10 +5,10 @@
 [z] - failures
 
 1) [x] Move waiting duration to Settings 
-2) [ ] prepare JS test page
+2) [ ] prepare TypeScript test page
 3) [>] Add checking to DB data methods
 4) [ ] Add routes
-5) [v] add final DB CRUD methods [v]
+5) [v] add final DB CRUD methods
     - [ ] no projects with the same name
     - [ ] get full project
     - [ ] project stats

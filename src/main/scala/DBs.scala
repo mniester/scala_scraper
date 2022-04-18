@@ -60,8 +60,8 @@ abstract class DB {
   }
 
   def delProjectsByName(query: ProjectQueryByName): Unit = {
-    val removeProject = cursor.run(projects.filter(_.name === query.name).map(_.deleteTime).update(Pencilcase.stringUTCNow()))
-    val removeTasks = cursor.run(tasks.filter(_.project === query.name).map(_.deleteTime).update(Pencilcase.stringUTCNow()))
+    val removeProject = cursor.run(projects.filter(_.name === query.name).map(_.deleteTime).update(Pencilcase.stringTimeZonedNow()))
+    val removeTasks = cursor.run(tasks.filter(_.project === query.name).map(_.deleteTime).update(Pencilcase.stringTimeZonedNow()))
     Await.result(removeProject, Settings.dbWaitingDuration)
     Await.result(removeTasks, Settings.dbWaitingDuration)
   }
@@ -77,7 +77,6 @@ abstract class DB {
 }
 
 object SQLite extends DB {
-  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
   val configFile = ConfigFactory.parseFile(new File(s"${os.pwd}/src/resources/application.conf"))
   val cursor = Database.forConfig(path = "", config = configFile.getConfig("db.sqlite3"))
 
