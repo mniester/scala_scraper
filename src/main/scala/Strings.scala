@@ -1,4 +1,3 @@
-
 package Strings
 
 import pdi.jwt.{Jwt, JwtAlgorithm}

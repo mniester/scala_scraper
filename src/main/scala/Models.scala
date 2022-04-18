@@ -1,7 +1,10 @@
 package  Models
 
 import java.time.LocalDateTime
+
 import Settings._
+import Pencilcase._
+
 
 
 abstract class Model {
@@ -23,7 +26,6 @@ case class TaskModel(key: Int, name: String, author: String, startTime: LocalDat
     (key, name, author, startTime.toString(), endTime.toString(), project, time, volume, comment, deleteTime)
   
   def checkLocalTimeDateOverlap (otherTask: TaskModel): Boolean =
-    // if this.startTime 
     ???
 }
 
