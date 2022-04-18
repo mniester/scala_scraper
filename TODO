@@ -9,12 +9,14 @@
 3) [>] Add checking to DB data methods
 4) [ ] Add routes
 5) [v] add final DB CRUD methods
+    - [x] check overlapping when adding a new task
+    - [ ] ban adding new task if tasks overlapping
     - [ ] no projects with the same name
     - [ ] get full project
     - [ ] project stats
     - [ ] project filters
-    - [ ] check overlapping when adding a new task
 6) [x] JWT coding
 7) [x] Choose datetime data type
 8) [z] Bug in test("DB - add, get and remove task")
 9) [z] Generalize gets in DB
+10) [ ] Change Queries to String subclass

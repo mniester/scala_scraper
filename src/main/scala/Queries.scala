@@ -11,3 +11,4 @@ case class FullProjectQuery(name: String) extends MyQuery
 
 case class TaskQueryByName(name: String) extends MyQuery
 
+case class TaskQueryByProject(project: String) extends MyQuery

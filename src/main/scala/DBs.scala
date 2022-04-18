@@ -16,8 +16,7 @@ import Models._
 import Queries._ 
 
 
-
-abstract class DB {
+abstract class DBBase {
   val configFile: Config
   val cursor: Database
   lazy val users = TableQuery[UserSchema]
@@ -44,6 +43,11 @@ abstract class DB {
   
   def addTask (task: TaskModel): Unit =
     Await.result(cursor.run(tasks += task.toInputTuple), Settings.dbWaitingDuration)
+  
+  def addTasks (newTasks: Seq[TaskModel]): Unit = {
+    val nt = for (x <- newTasks) yield x.toInputTuple;
+    Await.result(cursor.run(tasks ++= nt), Settings.dbWaitingDuration)
+  }
 
   def getUserByName(query: UserQueryByName): Seq[UserModel] = {
     val action = cursor.run(users.filter(_.name === query.name).result)
@@ -54,7 +58,7 @@ abstract class DB {
     Await.result(cursor.run(users.filter(_.name === query.name).delete), Settings.dbWaitingDuration)
   }
 
-  def getProjectsByName(query: ProjectQueryByName) = {
+  def getProjectsByName(query: ProjectQueryByName): Seq[ProjectModel] = {
     val action = cursor.run(projects.filter(_.name === query.name).filter(_.deleteTime.length === 0).result)
     Await.result(action, Settings.dbWaitingDuration).map(x => ProjectModel(x._1, x._2, x._3, LocalDateTime.parse(x._4), x._5))
   }
@@ -66,17 +70,28 @@ abstract class DB {
     Await.result(removeTasks, Settings.dbWaitingDuration)
   }
 
-  def getTasksByName(query: TaskQueryByName) = {
+  def getTasksByName(query: TaskQueryByName): Seq[TaskModel] = {
     val action = cursor.run(tasks.filter(_.name === query.name).filter(_.deleteTime.length === 0).result)
+    Await.result(action, Settings.dbWaitingDuration).map(x => TaskModel(x._1, x._2, x._3, LocalDateTime.parse(x._4), LocalDateTime.parse(x._5), x._6, x._7, x._8, x._9, x._10))
+  }
+
+  def getTasksByProject(query: TaskQueryByProject): Seq[TaskModel] = {
+    val action = cursor.run(tasks.filter(_.project === query.project).filter(_.deleteTime.length === 0).result)
     Await.result(action, Settings.dbWaitingDuration).map(x => TaskModel(x._1, x._2, x._3, LocalDateTime.parse(x._4), LocalDateTime.parse(x._5), x._6, x._7, x._8, x._9, x._10))
   }
 
   def delTasksByName(query: TaskQueryByName): Unit = {
     Await.result(cursor.run(tasks.filter(_.name === query.name).map(_.deleteTime).update("aaa")), Settings.dbWaitingDuration)
   }
+
+  def checkOverlappingTaskInProject(task: TaskModel): Seq[TaskModel] = {
+    val tasksOfProject = getTasksByProject(TaskQueryByProject(task.project))
+    for (t <- tasksOfProject if task.checkLocalTimeDateOverlap(t)) yield {t}
+  }
+
 }
 
-object SQLite extends DB {
+object SQLite extends DBBase {
   val configFile = ConfigFactory.parseFile(new File(s"${os.pwd}/src/resources/application.conf"))
   val cursor = Database.forConfig(path = "", config = configFile.getConfig("db.sqlite3"))
 

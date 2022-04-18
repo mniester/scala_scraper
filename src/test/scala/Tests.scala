@@ -73,7 +73,7 @@ class UnitTests extends AnyFunSuite {
   at org.scalatest.Transformer.apply(Transformer.scala:20)
   at org.scalatest.funsuite.AnyFunSuiteLike$$anon$1.apply(AnyFunSuiteLike.scala:226)*/
   
-  test("DB - add, get and remove task") {db.purge;
+  test("DB - add, get and remove task by name") {db.purge;
                                         val task = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
                                         val taskQuery = TaskQueryByName("Test")
                                         db.addTask(task);
@@ -83,7 +83,15 @@ class UnitTests extends AnyFunSuite {
                                         var dbResult2 = db.getTasksByName(taskQuery);
                                         assert (dbResult2.isEmpty);
                                       }
-  
+
+  test("DB - add, get task by project") {db.purge;
+                                        val task = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
+                                        val taskQuery = TaskQueryByProject("Test")
+                                        db.addTask(task);
+                                        val dbResult = db.getTasksByProject(taskQuery)(0);
+                                        assert (task == dbResult);
+                                      }
+
   test("DB - remove Project with Tasks") {db.purge;
                                         val task = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
                                         val project = ProjectFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01").get;
@@ -97,11 +105,22 @@ class UnitTests extends AnyFunSuite {
                                         var TaskResult = db.getTasksByName(taskQuery);
                                         assert (TaskResult.isEmpty);
                                       }
+  
+  test("DB - checkOverlappingTaskInProject") {db.purge;
+    val task1 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
+    val task2 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
+    val task3 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test1", time = 1, volume = -1, comment = "Test").get;
+    db.addTasks(Seq(task1, task2, task3))
+    val result = db.checkOverlappingTaskInProject(task1)
+    assert(result.length == 2)
+  }
+
   test("Task - checkLocalTimeDateOverlap true") {
     val task1 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
     val task2 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
     assert(task1.checkLocalTimeDateOverlap(task2))
   }
+
   test("Task - checkLocalTimeDateOverlap false") {
     val task1 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
     val task2 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2001-01-01T00:01:01", endTime = "2001-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
