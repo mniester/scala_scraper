@@ -1,6 +1,6 @@
 package  Models
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 import Settings.CommonSettings
 
 
@@ -13,12 +13,12 @@ case class UserModel(key: Int, name: String) extends  Model {
     (key, name)
 }
 
-case class ProjectModel(key: Int, name: String, userName: String, startTime: DateTime, deleteTime: String = "") extends  Model {
+case class ProjectModel(key: Int, name: String, userName: String, startTime: LocalDateTime, deleteTime: String = "") extends  Model {
   def toInputTuple(): Tuple5[Int, String, String, String, String] =
     (key, name, userName, startTime.toString(), deleteTime)
 }
 
-case class TaskModel(key: Int, name: String, author: String, startTime: DateTime, endTime: DateTime, project: String, time: Int,  volume: Int, comment: String, deleteTime: String) extends  Model {
+case class TaskModel(key: Int, name: String, author: String, startTime: LocalDateTime, endTime: LocalDateTime, project: String, time: Int,  volume: Int, comment: String, deleteTime: String) extends  Model {
   def toInputTuple(): Tuple10[Int, String, String, String, String, String, Int, Int, String, String] = 
     (key, name, author, startTime.toString(), endTime.toString(), project, time, volume, comment, deleteTime)
 }
@@ -27,7 +27,7 @@ case class TaskModel(key: Int, name: String, author: String, startTime: DateTime
 object CheckISOTimeFormat {
   def apply (string: String): Boolean =
     try {
-      new DateTime(string)
+      LocalDateTime.parse(string)
       true
     }
     catch {
@@ -47,7 +47,7 @@ object UserFactory {
 object ProjectFactory {
   def apply (key: Int = -1, name: String, author: String, startTime: String,  deleteTime: String = ""): Option[ProjectModel] =
     if ((name.length <= CommonSettings.maxProjectNameLength) && (author.length <= CommonSettings.maxUserNameLength) && CheckISOTimeFormat(startTime)) {
-      Some(ProjectModel(key, name, author, new DateTime(startTime), deleteTime))
+      Some(ProjectModel(key, name, author, LocalDateTime.parse(startTime), deleteTime))
     } else {
       None
     }
@@ -56,7 +56,7 @@ object ProjectFactory {
 object TaskFactory {
   def apply (key: Int = -1, name: String, author: String, startTime: String, endTime: String, project: String, time: Int, volume: Int = -1, comment: String = "", deleteTime: String = ""): Option[TaskModel] =
     if (comment.length <= CommonSettings.maxTaskCommentLength) {
-      Some(TaskModel(key, name, author, new DateTime(startTime), new DateTime(endTime), project, time, volume, comment, deleteTime))
+      Some(TaskModel(key, name, author, LocalDateTime.parse(startTime), LocalDateTime.parse(endTime), project, time, volume, comment, deleteTime))
     } else {
       None
     }
