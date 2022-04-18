@@ -94,6 +94,11 @@ abstract class DBBase {
     if (overlappingTasks.isEmpty) {addTask(newTask); Seq()} else overlappingTasks
   }
 
+  def addProjectFacade(newProject: ProjectModel): Option[ProjectModel] = {
+    val projectWithSameName = getProjectsByName(ProjectQueryByName(newProject.name))
+    if (projectWithSameName.isEmpty) {addProject(newProject); None} else {Some(projectWithSameName.head)}
+  }
+
 }
 
 object SQLite extends DBBase {

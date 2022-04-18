@@ -1,6 +1,6 @@
 [x] - done
 [v] - now working
-[-] - dropped
+[-] - dropped idea
 [>] - moved to other point
 [z] - failures
 
@@ -10,8 +10,10 @@
 4) [ ] Add routes
 5) [v] add final DB CRUD methods
     - [x] check overlapping when adding a new task
-    - [ ] ban adding new task if tasks overlapping
-    - [ ] no projects with the same name
+    - [x] ban adding new task if tasks overlapping
+    - [x] no projects with the same name
+    - [x] added Facade for adding Task
+    - [x] added Facade for adding Project
     - [ ] get full project
     - [ ] project stats
     - [ ] project filters
@@ -19,5 +21,8 @@
 7) [x] Choose datetime data type
 8) [z] Bug in test("DB - add, get and remove task")
 9) [z] Generalize gets in DB
-10) [ ] Change Queries to String subclass
+10) [z] Change Queries to String subclass
 11) [ ] Remove Unit - all functions should return something
+12) [ ] Responses
+    - [ ] Overlapping Tasks
+    - [ ] Project with already used name
