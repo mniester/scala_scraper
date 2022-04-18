@@ -49,12 +49,12 @@ abstract class DBBase {
     Await.result(cursor.run(tasks ++= nt), Settings.dbWaitingDuration)
   }
 
-  def getUserByName(query: UserQueryByName): Seq[UserModel] = {
+  def getUsersByName(query: UserQueryByName): Seq[UserModel] = {
     val action = cursor.run(users.filter(_.name === query.name).result)
     Await.result(action, Settings.dbWaitingDuration).map(x => UserModel(x._1, x._2))
   }
 
-  def delUserByName(query: UserQueryByName): Unit = {
+  def delUsersByName(query: UserQueryByName): Unit = {
     Await.result(cursor.run(users.filter(_.name === query.name).delete), Settings.dbWaitingDuration)
   }
 
@@ -81,12 +81,17 @@ abstract class DBBase {
   }
 
   def delTasksByName(query: TaskQueryByName): Unit = {
-    Await.result(cursor.run(tasks.filter(_.name === query.name).map(_.deleteTime).update("aaa")), Settings.dbWaitingDuration)
+    Await.result(cursor.run(tasks.filter(_.name === query.name).map(_.deleteTime).update(Pencilcase.stringTimeZonedNow())), Settings.dbWaitingDuration)
   }
 
   def checkOverlappingTasksInProject(task: TaskModel): Seq[TaskModel] = {
     val tasksOfProject = getTasksByProject(TaskQueryByProject(task.project))
     for (t <- tasksOfProject if task.checkLocalTimeDateOverlap(t)) yield {t}
+  }
+
+  def addUserFacade(newUser: UserModel): Option[UserModel] = {
+    val userWithSameName = getUsersByName(UserQueryByName(newUser.name))
+    if (userWithSameName.isEmpty) {addUser(newUser); None} else {Some(userWithSameName.head)}
   }
 
   def addTaskFacade(newTask: TaskModel): Seq[TaskModel] = {

@@ -6,7 +6,6 @@ import Settings._
 import Pencilcase._
 
 
-
 abstract class Model {
   def toInputTuple (): Product
 }

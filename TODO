@@ -14,15 +14,20 @@
     - [x] no projects with the same name
     - [x] added Facade for adding Task
     - [x] added Facade for adding Project
+    - [x] added Facade for adding User
     - [ ] get full project
     - [ ] project stats
     - [ ] project filters
-6) [x] JWT coding
+    - [ ] project sorting
+6) JSONs
+    - [x] JWT coding
+    - [ ] Response - Tasks overlapping
+    - [ ] Response - ok
+    - [ ] Response - 
+    - [ ] Project - Project has already used name
+    - [ ] Project added ok
 7) [x] Choose datetime data type
 8) [z] Bug in test("DB - add, get and remove task")
 9) [z] Generalize gets in DB
 10) [z] Change Queries to String subclass
 11) [ ] Remove Unit - all functions should return something
-12) [ ] Responses
-    - [ ] Overlapping Tasks
-    - [ ] Project with already used name

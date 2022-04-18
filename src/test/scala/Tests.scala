@@ -42,10 +42,10 @@ class UnitTests extends AnyFunSuite {
                                         val user = UserFactory(key = 1, name = "Test").get;
                                         val userQuery = UserQueryByName("Test")
                                         db.addUser(user);
-                                        var dbResult = db.getUserByName(userQuery).last; 
+                                        var dbResult = db.getUsersByName(userQuery).last; 
                                         assert (user == dbResult);
-                                        db.delUserByName(userQuery);
-                                        var dbResult2 = db.getUserByName(userQuery);
+                                        db.delUsersByName(userQuery);
+                                        var dbResult2 = db.getUsersByName(userQuery);
                                         assert (dbResult2.length == 0);}
   
   test("DB - add, get and remove project") {db.purge;
@@ -106,6 +106,18 @@ class UnitTests extends AnyFunSuite {
                                         assert (TaskResult.isEmpty);
                                       }
   
+  test("Task - checkLocalTimeDateOverlap true") {
+    val task1 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
+    val task2 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
+    assert(task1.checkLocalTimeDateOverlap(task2))
+  }
+
+  test("Task - checkLocalTimeDateOverlap false") {
+    val task1 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
+    val task2 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2001-01-01T00:01:01", endTime = "2001-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
+    assert(!task1.checkLocalTimeDateOverlap(task2))
+  }
+
   test("DB - checkOverlappingTasksInProject") {db.purge;
     val task1 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
     val task2 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
@@ -124,6 +136,23 @@ class UnitTests extends AnyFunSuite {
     assert(result.length == 0)
   }
 
+  test("DB - add, get and remove User using Facade OK") {db.purge;
+                                        val user = UserFactory(key = 1, name = "Test").get;
+                                        val userQuery = UserQueryByName("Test")
+                                        db.addUserFacade(user);
+                                        val dbResult = db.getUsersByName(userQuery).last; 
+                                        assert (user == dbResult);
+                                        db.delUsersByName(userQuery);
+                                        var dbResult2 = db.getUsersByName(userQuery);
+                                        assert (dbResult2.length == 0);}
+  
+  test("DB - add User using Facade returns User with the same name") {db.purge;
+                                        val user = UserFactory(key = 1, name = "Test").get;
+                                        val userQuery = UserQueryByName("Test")
+                                        db.addUserFacade(user);
+                                        val dbResult = db.addUserFacade(user).get;
+                                        }
+
   test("DB - add Task using Facade ok") {db.purge;
                                         val task = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
                                         val taskQuery = TaskQueryByName("Test")
@@ -141,20 +170,7 @@ class UnitTests extends AnyFunSuite {
     assert(result == task2)
   }
 
-  test("Task - checkLocalTimeDateOverlap true") {
-    val task1 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
-    val task2 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
-    assert(task1.checkLocalTimeDateOverlap(task2))
-  }
-
-  test("Task - checkLocalTimeDateOverlap false") {
-    val task1 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
-    val task2 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2001-01-01T00:01:01", endTime = "2001-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
-    assert(!task1.checkLocalTimeDateOverlap(task2))
-  }
-
- 
-  test("DB - add, get and remove project using Facade OK") {db.purge;
+  test("DB - add, get and remove Project using Facade OK") {db.purge;
                                         val project = ProjectFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01").get;
                                         val projectQuery = ProjectQueryByName("Test")
                                         db.addProjectFacade(project);
@@ -164,11 +180,10 @@ class UnitTests extends AnyFunSuite {
                                         var dbResult2 = db.getProjectsByName(projectQuery);
                                         assert (dbResult2.length == 0);}
   
-  test("DB - add Project using Facade fail") {db.purge;
+  test("DB - add Project using Facade returns Project with the same name") {db.purge;
                                         val project = ProjectFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01").get;
                                         val projectQuery = ProjectQueryByName("Test")
                                         db.addProjectFacade(project);
                                         val dbResult = db.addProjectFacade(project).get;
-                                        }
-  
+                                        } 
 }                                      
