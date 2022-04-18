@@ -106,13 +106,31 @@ class UnitTests extends AnyFunSuite {
                                         assert (TaskResult.isEmpty);
                                       }
   
-  test("DB - checkOverlappingTaskInProject") {db.purge;
+  test("DB - checkOverlappingTasksInProject") {db.purge;
     val task1 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
     val task2 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
     val task3 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test1", time = 1, volume = -1, comment = "Test").get;
-    db.addTasks(Seq(task1, task2, task3))
-    val result = db.checkOverlappingTaskInProject(task1)
-    assert(result.length == 2)
+    db.addTasks(Seq(task2, task3))
+    val result = db.checkOverlappingTasksInProject(task1)
+    assert(result.length == 1)
+  }
+
+  test("DB - checkOverlappingTasksInProject - no found") {db.purge;
+    val task1 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
+    val task2 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2001-01-01T00:01:01", endTime = "2001-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
+    val task3 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test1", time = 1, volume = -1, comment = "Test").get;
+    db.addTasks(Seq(task2, task3))
+    val result = db.checkOverlappingTasksInProject(task1)
+    assert(result.length == 0)
+  }
+
+  test("DB - addTaskFacade") {db.purge;
+    val task1 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
+    val task2 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
+    val task3 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test1", time = 1, volume = -1, comment = "Test").get;
+    db.addTasks(Seq(task2, task3))
+    val result = db.addTaskFacade(task1)(0)
+    assert(result == task2)
   }
 
   test("Task - checkLocalTimeDateOverlap true") {

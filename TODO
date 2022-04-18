@@ -20,3 +20,4 @@
 8) [z] Bug in test("DB - add, get and remove task")
 9) [z] Generalize gets in DB
 10) [ ] Change Queries to String subclass
+11) [ ] Remove Unit - all functions should return something

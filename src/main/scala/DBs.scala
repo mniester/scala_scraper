@@ -84,9 +84,14 @@ abstract class DBBase {
     Await.result(cursor.run(tasks.filter(_.name === query.name).map(_.deleteTime).update("aaa")), Settings.dbWaitingDuration)
   }
 
-  def checkOverlappingTaskInProject(task: TaskModel): Seq[TaskModel] = {
+  def checkOverlappingTasksInProject(task: TaskModel): Seq[TaskModel] = {
     val tasksOfProject = getTasksByProject(TaskQueryByProject(task.project))
     for (t <- tasksOfProject if task.checkLocalTimeDateOverlap(t)) yield {t}
+  }
+
+  def addTaskFacade(newTask: TaskModel): Seq[TaskModel] = {
+    val overlappingTasks = checkOverlappingTasksInProject(newTask)
+    if (overlappingTasks.isEmpty) {addTask(newTask); Seq()} else overlappingTasks
   }
 
 }
