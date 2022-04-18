@@ -3,13 +3,13 @@ import java.time.Clock
 
 package object Pencilcase { // I use pencilcase file for small snippets, which do not fit to other files and can be useful in many projects
   
-  def toBoolean[Int] (nr: Int) =
-    if (nr == -1) {false} else {true}
+  def toBooleanZeroAsFalse[Int] (nr: Int) =
+    if (nr == 1) {true} else {false}
 
   def isEarlier(alpha: LocalDateTime, beta: LocalDateTime): Boolean =
-    !toBoolean(alpha.compareTo(beta))
+    !toBooleanZeroAsFalse(alpha.compareTo(beta))
   
-  def isEarlierWithParse(alpha: String, beta: String): Boolean =
+  def isEarlier(alpha: String, beta: String): Boolean =
     isEarlier(LocalDateTime.parse(alpha), LocalDateTime.parse(beta))
   
   def stringUTCNow (): String =
