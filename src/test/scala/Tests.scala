@@ -23,7 +23,8 @@ class UnitTests extends AnyFunSuite {
   test("ProjectFactory - fail; datetime not ok") {assert (ProjectFactory(name = "abc" * CommonSettings.maxProjectNameLength, author = "abc", startTime = "2000-13-01T00:01:01") == None)}
   test("TaskFactory - fail; comment too long") {assert (TaskFactory(name = "Test",
                                                         author = "Test",
-                                                        start = "2000-01-01T00:01:01", 
+                                                        startTime = "2000-01-01T00:01:01",
+                                                        endTime = "2000-02-01T00:01:01",
                                                         project = "project", time = 1,
                                                         volume = 1, 
                                                         comment = "abc" * CommonSettings.maxTaskCommentLength) == None)}
@@ -49,18 +50,18 @@ class UnitTests extends AnyFunSuite {
                                         assert (dbResult2.length == 0);}
   
   test("DB - add, get and remove task") {db.purge;
-                                        val task = TaskFactory(key = 1, name = "Test", author = "Test", start = "2000-01-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
+                                        val task = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
                                         val taskQuery = TaskQueryByName("Test")
                                         db.addTask(task);
-                                        val dbResult = db.getTaskByName(taskQuery).last; 
+                                        val dbResult = db.getTaskByName(taskQuery)(0);
                                         assert (task == dbResult);
                                         db.delTaskByName(taskQuery);
                                         var dbResult2 = db.getTaskByName(taskQuery);
-                                        assert (dbResult2.length == 0);
+                                        assert (dbResult2.isEmpty);
                                       }
   
   test("DB - remove Project with Tasks") {db.purge;
-                                        val task = TaskFactory(key = 1, name = "Test", author = "Test", start = "2000-01-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
+                                        val task = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
                                         val project = ProjectFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01").get;
                                         val taskQuery = TaskQueryByName("Test")
                                         val projectQuery = ProjectQueryByName("Test")
