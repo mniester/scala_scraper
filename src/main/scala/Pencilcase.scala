@@ -1,4 +1,5 @@
 import java.time.LocalDateTime
+import java.time.Clock
 
 package object Pencilcase { // I use pencilcase file for small snippets, which do not fit to other files and can be useful in many projects
   
@@ -10,4 +11,10 @@ package object Pencilcase { // I use pencilcase file for small snippets, which d
   
   def isEarlierWithParse(alpha: String, beta: String): Boolean =
     isEarlier(LocalDateTime.parse(alpha), LocalDateTime.parse(beta))
+  
+  def stringUTCNow (): String =
+    Clock.systemUTC().instant().toString()
+  
+  def stringZoneNow (): String =
+    Clock.systemDefaultZone().instant.toString()
 }

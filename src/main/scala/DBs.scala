@@ -62,8 +62,8 @@ abstract class DB {
   }
 
   def delProjectByName(query: ProjectQueryByName): Unit = {
-    val removeProject = cursor.run(projects.filter(_.name === query.name).map(_.deleteTime).update("aaa"))
-    val removeTasks = cursor.run(tasks.filter(_.project === query.name).map(_.deleteTime).update("aaa"))
+    val removeProject = cursor.run(projects.filter(_.name === query.name).map(_.deleteTime).update(Pencilcase.stringUTCNow()))
+    val removeTasks = cursor.run(tasks.filter(_.project === query.name).map(_.deleteTime).update(Pencilcase.stringUTCNow()))
     Await.result(removeProject, Settings.dbWaitingDuration)
     Await.result(removeTasks, Settings.dbWaitingDuration)
   }
