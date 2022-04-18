@@ -26,7 +26,7 @@ case class TaskModel(key: Int, name: String, author: String, startTime: LocalDat
     (key, name, author, startTime.toString(), endTime.toString(), project, time, volume, comment, deleteTime)
   
   def checkLocalTimeDateOverlap (otherTask: TaskModel): Boolean =
-    ???
+    !Pencilcase.isEarlier(this.endTime, otherTask.startTime)
 }
 
 
@@ -61,7 +61,7 @@ object ProjectFactory {
 
 object TaskFactory {
   def apply (key: Int = -1, name: String, author: String, startTime: String, endTime: String, project: String, time: Int, volume: Int = -1, comment: String = "", deleteTime: String = ""): Option[TaskModel] =
-    if (comment.length <= Settings.maxTaskCommentLength) {
+    if ((comment.length <= Settings.maxTaskCommentLength) && CheckISOTimeFormat(startTime) && CheckISOTimeFormat(endTime) && Pencilcase.isEarlierWithParse(startTime, endTime)) {
       Some(TaskModel(key, name, author, LocalDateTime.parse(startTime), LocalDateTime.parse(endTime), project, time, volume, comment, deleteTime))
     } else {
       None

@@ -29,6 +29,14 @@ class UnitTests extends AnyFunSuite {
                                                         volume = 1, 
                                                         comment = "abc" * Settings.maxTaskCommentLength) == None)}
   
+  test("TaskFactory - fail; endTime is earlier than startTime") {assert (TaskFactory(name = "Test",
+                                                        author = "Test",
+                                                        startTime = "2001-01-01T00:01:01",
+                                                        endTime = "2000-02-01T00:01:01",
+                                                        project = "project", time = 1,
+                                                        volume = 1, 
+                                                        comment = "abc") == None)}
+  
   test("DB - add, get and remove user") {db.purge;
                                         val user = UserFactory(key = 1, name = "Test").get;
                                         val userQuery = UserQueryByName("Test")
@@ -88,12 +96,12 @@ class UnitTests extends AnyFunSuite {
                                         var TaskResult = db.getTaskByName(taskQuery);
                                         assert (TaskResult.isEmpty);
                                       }
-  test("Task -  checkLocalTimeDateOverlap true") {
-    val task1 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2002-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
+  test("Task - checkLocalTimeDateOverlap true") {
+    val task1 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
     val task2 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
     assert(task1.checkLocalTimeDateOverlap(task2))
   }
-  test("Task -  checkLocalTimeDateOverlap false") {
+  test("Task - checkLocalTimeDateOverlap false") {
     val task1 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
     val task2 = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2001-01-01T00:01:01", endTime = "2001-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
     assert(!task1.checkLocalTimeDateOverlap(task2))
