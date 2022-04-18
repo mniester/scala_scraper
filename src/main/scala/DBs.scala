@@ -17,7 +17,6 @@ import Queries._
 
 
 
-
 abstract class DB {
   val configFile: Config
   val cursor: Database
@@ -71,7 +70,7 @@ abstract class DB {
 
   def getTaskByName(query: TaskQueryByName) = {
     val action = cursor.run(tasks.filter(_.name === query.name).filter(_.deleteTime.length === 0).result)
-    Await.result(action, CommonSettings.dbWaitingDuration).map(x => TaskModel(x._1, x._2, x._3, x._4, x._5, x._6, x._7, x._8, x._9, x._10))
+    Await.result(action, CommonSettings.dbWaitingDuration).map(x => TaskModel(x._1, x._2, x._3, new DateTime(x._4), new DateTime(x._5), x._6, x._7, x._8, x._9, x._10))
   }
 
   def delTaskByName(query: TaskQueryByName): Unit = {

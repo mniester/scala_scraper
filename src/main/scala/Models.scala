@@ -18,9 +18,9 @@ case class ProjectModel(key: Int, name: String, userName: String, startTime: Dat
     (key, name, userName, startTime.toString(), deleteTime)
 }
 
-case class TaskModel(key: Int, name: String, author: String, startTime: String, endTime: String, project: String, time: Int,  volume: Int, comment: String, deleteTime: String) extends  Model {
+case class TaskModel(key: Int, name: String, author: String, startTime: DateTime, endTime: DateTime, project: String, time: Int,  volume: Int, comment: String, deleteTime: String) extends  Model {
   def toInputTuple(): Tuple10[Int, String, String, String, String, String, Int, Int, String, String] = 
-    (key, name, author, startTime, endTime, project, time, volume, comment, deleteTime)
+    (key, name, author, startTime.toString(), endTime.toString(), project, time, volume, comment, deleteTime)
 }
 
 
@@ -56,7 +56,7 @@ object ProjectFactory {
 object TaskFactory {
   def apply (key: Int = -1, name: String, author: String, startTime: String, endTime: String, project: String, time: Int, volume: Int = -1, comment: String = "", deleteTime: String = ""): Option[TaskModel] =
     if (comment.length <= CommonSettings.maxTaskCommentLength) {
-      Some(TaskModel(key, name, author, startTime, endTime, project, time, volume, comment, deleteTime))
+      Some(TaskModel(key, name, author, new DateTime(startTime), new DateTime(endTime), project, time, volume, comment, deleteTime))
     } else {
       None
     }
