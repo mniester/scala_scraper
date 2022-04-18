@@ -1,10 +1,11 @@
 [x] - done
 [v] - now working
-[-] = dropped
+[-] - dropped
+[>] - moved to other point
 
 1) Move waiting duration to Settings [x]
 2) prepare JS test page
-3) Add checking to DB data methods [-]
+3) Add checking to DB data methods [>]
 4) Add routes
 5) add final DB CRUD methods [v]
     - no projects with the same name
