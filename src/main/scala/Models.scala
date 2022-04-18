@@ -13,9 +13,9 @@ case class UserModel(key: Int, name: String) extends  Model {
     (key, name)
 }
 
-case class ProjectModel(key: Int, name: String, userName: String, startTime: String, deleteTime: String = "") extends  Model {
+case class ProjectModel(key: Int, name: String, userName: String, startTime: DateTime, deleteTime: String = "") extends  Model {
   def toInputTuple(): Tuple5[Int, String, String, String, String] =
-    (key, name, userName, startTime, deleteTime)
+    (key, name, userName, startTime.toString(), deleteTime)
 }
 
 case class TaskModel(key: Int, name: String, author: String, startTime: String, endTime: String, project: String, time: Int,  volume: Int, comment: String, deleteTime: String) extends  Model {
@@ -47,7 +47,7 @@ object UserFactory {
 object ProjectFactory {
   def apply (key: Int = -1, name: String, author: String, startTime: String,  deleteTime: String = ""): Option[ProjectModel] =
     if ((name.length <= CommonSettings.maxProjectNameLength) && (author.length <= CommonSettings.maxUserNameLength) && CheckISOTimeFormat(startTime)) {
-      Some(ProjectModel(key, name, author, startTime, deleteTime))
+      Some(ProjectModel(key, name, author, new DateTime(startTime), deleteTime))
     } else {
       None
     }

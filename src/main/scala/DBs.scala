@@ -1,17 +1,20 @@
 package DBs
 
+import java.io.File
+import scala.concurrent.Await
+
 import os.pwd
 import com.typesafe.config.{Config, ConfigFactory}
-import scala.concurrent.Await
-import java.io.File
+
 import slick.basic.BasicBackend
 import slick.jdbc.SQLiteProfile.api._
+import org.joda.time.DateTime
 
 import Settings.CommonSettings
 import Schemas._
 import Models._
 import Queries._ 
-import java.time.Clock
+
 
 
 
@@ -56,7 +59,7 @@ abstract class DB {
 
   def getProjectByName(query: ProjectQueryByName) = {
     val action = cursor.run(projects.filter(_.name === query.name).filter(_.deleteTime.length === 0).result)
-    Await.result(action, CommonSettings.dbWaitingDuration).map(x => ProjectModel(x._1, x._2, x._3, x._4, x._5))
+    Await.result(action, CommonSettings.dbWaitingDuration).map(x => ProjectModel(x._1, x._2, x._3, new DateTime(x._4), x._5))
   }
 
   def delProjectByName(query: ProjectQueryByName): Unit = {
