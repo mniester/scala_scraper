@@ -1,7 +1,16 @@
+[x] - done
+[v] - now working
+[-] = dropped
+
 1) Move waiting duration to Settings [x]
 2) prepare JS test page
-3) Add checking to DB data methods
+3) Add checking to DB data methods [-]
 4) Add routes
-5) add final DB CRUD methods [basic methods added]
+5) add final DB CRUD methods [v]
+    - no projects with the same name
+    - get full project
+    - project stats
+    - project filters
+    - check overlapping when adding a new task
 6) JWT coding [x]
-7) Choose datetime data type
+7) Choose datetime data type [x]
