@@ -2,16 +2,19 @@
 [v] - now working
 [-] - dropped
 [>] - moved to other point
+[z] - failures
 
-1) Move waiting duration to Settings [x]
-2) prepare JS test page
-3) Add checking to DB data methods [>]
-4) Add routes
-5) add final DB CRUD methods [v]
-    - no projects with the same name
-    - get full project
-    - project stats
-    - project filters
-    - check overlapping when adding a new task
-6) JWT coding [x]
-7) Choose datetime data type [x]
+1) [x] Move waiting duration to Settings 
+2) [ ] prepare JS test page
+3) [>] Add checking to DB data methods
+4) [ ] Add routes
+5) [v] add final DB CRUD methods [v]
+    - [ ] no projects with the same name
+    - [ ] get full project
+    - [ ] project stats
+    - [ ] project filters
+    - [ ] check overlapping when adding a new task
+6) [x] JWT coding
+7) [x] Choose datetime data type
+8) [z] Bug in test("DB - add, get and remove task")
+9) [z] Generalize gets in DB

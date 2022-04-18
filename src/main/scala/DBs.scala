@@ -45,8 +45,6 @@ abstract class DB {
   def addTask (task: TaskModel): Unit =
     Await.result(cursor.run(tasks += task.toInputTuple), Settings.dbWaitingDuration)
 
-  // TODO (FAILURE) generalize gets
-
   def getUserByName(query: UserQueryByName): Seq[UserModel] = {
     val action = cursor.run(users.filter(_.name === query.name).result)
     Await.result(action, Settings.dbWaitingDuration).map(x => UserModel(x._1, x._2))
@@ -56,24 +54,24 @@ abstract class DB {
     Await.result(cursor.run(users.filter(_.name === query.name).delete), Settings.dbWaitingDuration)
   }
 
-  def getProjectByName(query: ProjectQueryByName) = {
+  def getProjectsByName(query: ProjectQueryByName) = {
     val action = cursor.run(projects.filter(_.name === query.name).filter(_.deleteTime.length === 0).result)
     Await.result(action, Settings.dbWaitingDuration).map(x => ProjectModel(x._1, x._2, x._3, LocalDateTime.parse(x._4), x._5))
   }
 
-  def delProjectByName(query: ProjectQueryByName): Unit = {
+  def delProjectsByName(query: ProjectQueryByName): Unit = {
     val removeProject = cursor.run(projects.filter(_.name === query.name).map(_.deleteTime).update(Pencilcase.stringUTCNow()))
     val removeTasks = cursor.run(tasks.filter(_.project === query.name).map(_.deleteTime).update(Pencilcase.stringUTCNow()))
     Await.result(removeProject, Settings.dbWaitingDuration)
     Await.result(removeTasks, Settings.dbWaitingDuration)
   }
 
-  def getTaskByName(query: TaskQueryByName) = {
+  def getTasksByName(query: TaskQueryByName) = {
     val action = cursor.run(tasks.filter(_.name === query.name).filter(_.deleteTime.length === 0).result)
     Await.result(action, Settings.dbWaitingDuration).map(x => TaskModel(x._1, x._2, x._3, LocalDateTime.parse(x._4), LocalDateTime.parse(x._5), x._6, x._7, x._8, x._9, x._10))
   }
 
-  def delTaskByName(query: TaskQueryByName): Unit = {
+  def delTasksByName(query: TaskQueryByName): Unit = {
     Await.result(cursor.run(tasks.filter(_.name === query.name).map(_.deleteTime).update("aaa")), Settings.dbWaitingDuration)
   }
 }

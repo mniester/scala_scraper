@@ -52,10 +52,10 @@ class UnitTests extends AnyFunSuite {
                                         val project = ProjectFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01").get;
                                         val projectQuery = ProjectQueryByName("Test")
                                         db.addProject(project);
-                                        val dbResult = db.getProjectByName(projectQuery).last; 
+                                        val dbResult = db.getProjectsByName(projectQuery).last; 
                                         assert (project == dbResult);
-                                        db.delProjectByName(projectQuery);
-                                        var dbResult2 = db.getProjectByName(projectQuery);
+                                        db.delProjectsByName(projectQuery);
+                                        var dbResult2 = db.getProjectsByName(projectQuery);
                                         assert (dbResult2.length == 0);}
 
 /* Lower tests sometimes returns this:
@@ -77,10 +77,10 @@ class UnitTests extends AnyFunSuite {
                                         val task = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;
                                         val taskQuery = TaskQueryByName("Test")
                                         db.addTask(task);
-                                        val dbResult = db.getTaskByName(taskQuery)(0);
+                                        val dbResult = db.getTasksByName(taskQuery)(0);
                                         assert (task == dbResult);
-                                        db.delTaskByName(taskQuery);
-                                        var dbResult2 = db.getTaskByName(taskQuery);
+                                        db.delTasksByName(taskQuery);
+                                        var dbResult2 = db.getTasksByName(taskQuery);
                                         assert (dbResult2.isEmpty);
                                       }
   
@@ -91,10 +91,10 @@ class UnitTests extends AnyFunSuite {
                                         val projectQuery = ProjectQueryByName("Test")
                                         db.addTask(task);
                                         db.addProject(project);
-                                        db.delProjectByName(projectQuery);
-                                        val projectResult = db.getProjectByName(projectQuery);
+                                        db.delProjectsByName(projectQuery);
+                                        val projectResult = db.getProjectsByName(projectQuery);
                                         assert (projectResult.isEmpty);
-                                        var TaskResult = db.getTaskByName(taskQuery);
+                                        var TaskResult = db.getTasksByName(taskQuery);
                                         assert (TaskResult.isEmpty);
                                       }
   test("Task - checkLocalTimeDateOverlap true") {
