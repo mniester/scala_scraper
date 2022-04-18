@@ -4,6 +4,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 import Settings._
 import Models._
+import Factories._
 import Strings._
 import DBs.SQLite
 import Queries._
@@ -57,7 +58,7 @@ class UnitTests extends AnyFunSuite {
                                         var dbResult2 = db.getProjectByName(projectQuery);
                                         assert (dbResult2.length == 0);}
 
-/* Upper tests sometimes returns this:
+/* Lower tests sometimes returns this:
 
   DB - add, get and remove task *** FAILED ***
   java.lang.IndexOutOfBoundsException: 0 is out of bounds (empty vector)
