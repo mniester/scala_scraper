@@ -17,17 +17,17 @@ class UnitTests extends AnyFunSuite {
   test("CheckISOTimeFormat - fail; not proper datetime") {assert (!CheckISOTimeFormat("2222-33-02T22:22:22"))}
   test("CheckISOTimeFormat - fail; string is not a datetime") {assert (!CheckISOTimeFormat("abcd"))}
 
-  test("UserFactory - fail; name too long") {assert (UserFactory(name = "ab" * CommonSettings.maxUserNameLength) == None)}
-  test("ProjectFactory - fail; name too long") {assert (ProjectFactory(name = "abc" * CommonSettings.maxProjectNameLength, author = "abc", startTime = "2000-01-01T00:01:01") == None)}
-  test("ProjectFactory - fail; user name too long") {assert (ProjectFactory(name = "abc", author = "abc" * CommonSettings.maxProjectNameLength, startTime = "2000-01-01T00:01:01") == None)}
-  test("ProjectFactory - fail; datetime not ok") {assert (ProjectFactory(name = "abc" * CommonSettings.maxProjectNameLength, author = "abc", startTime = "2000-13-01T00:01:01") == None)}
+  test("UserFactory - fail; name too long") {assert (UserFactory(name = "ab" * Settings.maxUserNameLength) == None)}
+  test("ProjectFactory - fail; name too long") {assert (ProjectFactory(name = "abc" * Settings.maxProjectNameLength, author = "abc", startTime = "2000-01-01T00:01:01") == None)}
+  test("ProjectFactory - fail; user name too long") {assert (ProjectFactory(name = "abc", author = "abc" * Settings.maxProjectNameLength, startTime = "2000-01-01T00:01:01") == None)}
+  test("ProjectFactory - fail; datetime not ok") {assert (ProjectFactory(name = "abc" * Settings.maxProjectNameLength, author = "abc", startTime = "2000-13-01T00:01:01") == None)}
   test("TaskFactory - fail; comment too long") {assert (TaskFactory(name = "Test",
                                                         author = "Test",
                                                         startTime = "2000-01-01T00:01:01",
                                                         endTime = "2000-02-01T00:01:01",
                                                         project = "project", time = 1,
                                                         volume = 1, 
-                                                        comment = "abc" * CommonSettings.maxTaskCommentLength) == None)}
+                                                        comment = "abc" * Settings.maxTaskCommentLength) == None)}
   
   test("DB - add, get and remove user") {db.purge;
                                         val user = UserFactory(key = 1, name = "Test").get;
@@ -48,6 +48,21 @@ class UnitTests extends AnyFunSuite {
                                         db.delProjectByName(projectQuery);
                                         var dbResult2 = db.getProjectByName(projectQuery);
                                         assert (dbResult2.length == 0);}
+
+/* Upper tests sometimes returns this:
+
+  DB - add, get and remove task *** FAILED ***
+  java.lang.IndexOutOfBoundsException: 0 is out of bounds (empty vector)
+  at scala.collection.immutable.Vector0$.ioob(Vector.scala:371)
+  at scala.collection.immutable.Vector0$.apply(Vector.scala:336)
+  at scala.collection.immutable.Vector0$.apply(Vector.scala:334)
+  at UnitTests.$anonfun$new$12(Tests.scala:56)
+  at org.scalatest.OutcomeOf.outcomeOf(OutcomeOf.scala:85)
+  at org.scalatest.OutcomeOf.outcomeOf$(OutcomeOf.scala:83)
+  at org.scalatest.OutcomeOf$.outcomeOf(OutcomeOf.scala:104)
+  at org.scalatest.Transformer.apply(Transformer.scala:22)
+  at org.scalatest.Transformer.apply(Transformer.scala:20)
+  at org.scalatest.funsuite.AnyFunSuiteLike$$anon$1.apply(AnyFunSuiteLike.scala:226)*/
   
   test("DB - add, get and remove task") {db.purge;
                                         val task = TaskFactory(key = 1, name = "Test", author = "Test", startTime = "2000-01-01T00:01:01", endTime = "2000-02-01T00:01:01", project = "Test", time = 1, volume = -1, comment = "Test").get;

@@ -7,7 +7,7 @@ import javax.crypto.SecretKey
 import Settings._
 
 object JwtCoder {
-  private val jwtkey = CommonSettings.JWTKey
+  private val jwtkey = Settings.JWTKey
   private val alg = JwtAlgorithm.HS256
   
   def encode (token: String) = {

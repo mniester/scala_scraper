@@ -6,8 +6,7 @@ version := "1.0"
 val AkkaVersion = "2.6.8"
 val AkkaHttpVersion = "10.2.9"
 
-libraryDependencies ++= Seq("joda-time" % "joda-time" % "2.10.14",
-                            "org.scalactic" %% "scalactic" % "3.2.10",
+libraryDependencies ++= Seq("org.scalactic" %% "scalactic" % "3.2.10",
                             "org.scalatest" %% "scalatest" % "3.2.10" % "test",
                             "org.xerial" % "sqlite-jdbc" % "3.36.0.3",
                             "com.typesafe.slick" %% "slick" % "3.3.3",
